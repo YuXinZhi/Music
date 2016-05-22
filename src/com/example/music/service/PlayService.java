@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.example.music.MainActivity;
 import com.example.music.R;
 import com.example.music.model.Track;
 import com.example.music.receiver.TrackNextReceiver;
 import com.example.music.receiver.TrackPlayReceiver;
 import com.example.music.utils.QueryTools;
 import com.example.music.utils.TrackUtils;
+import com.example.music.views.BitmapToBlur;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.app.Activity;
@@ -23,8 +25,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -66,7 +72,40 @@ public class PlayService extends Service {
 
 	private Activity mActivityCallback;
 
-	private QueryTools mQuerTools;
+	private QueryTools mQueryTools;
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		initHeadPluggedListener();
+		initPhoneStateChangeListener();
+		setNotiControlReceiver();
+		initNotification();
+		mediaPlayer.setOnCompletionListener(mOnCompletionListener);
+		mQueryTools = new QueryTools(this);
+	}
+
+	// 和Activity绑定后返回给Activity的对象
+	@Override
+	public IBinder onBind(Intent intent) {
+		return mBinder;
+	}
+
+	@Override
+	public void onDestroy() {
+		// 解除监听
+		unregisterReceiver(mHeadSetPlugBroadcastReceiver);
+		unregisterReceiver(mPhoneStateChangeListener);
+		unregisterReceiver(mNotiControlReceiver);
+		super.onDestroy();
+	}
+
+	public OnCompletionListener mOnCompletionListener = new OnCompletionListener() {
+		@Override
+		public void onCompletion(MediaPlayer mp) {
+			playNextTrack();
+		}
+	};
 
 	// 获取播放歌曲列表
 	public List<Track> getPlayList() {
@@ -169,7 +208,7 @@ public class PlayService extends Service {
 			e.printStackTrace();
 		}
 		onStateChanged();
-		// updateNotification();
+		updateNotification();
 	}
 
 	public void playNextTrack() {
@@ -196,20 +235,20 @@ public class PlayService extends Service {
 		mediaPlayer.stop();
 		mediaPlayer.release();
 		onStateChanged();
-		// updateNotification();
+		updateNotification();
 	}
 
 	public void pausePlayer() {
 		mediaPlayer.pause();
 		onStateChanged();
-		// updateNotification();
+		updateNotification();
 	}
 
 	// 重新开始
 	public void resumePlayer() {
 		mediaPlayer.start();
 		onStateChanged();
-		// updateNotification();
+		updateNotification();
 	}
 
 	// 判断是否正在播放
@@ -217,27 +256,32 @@ public class PlayService extends Service {
 		return mediaPlayer.isPlaying();
 	}
 
-	// 播放 状态改变时调用
-	private void onStateChanged() {
-		mStateChangedListener.onPlayStateChanged();
-		// new BlurImageCreater().execute();
-	}
-
 	// 收藏
 	public boolean onPraisedBtnPressed() {
 
-		boolean hadPraised = mQuerTools.checkIfHasAsFavourite(getCurrentTrackId(), TrackUtils.DB_PRAISED_NAME,
+		boolean hadPraised = mQueryTools.checkIfHasAsFavourite(getCurrentTrackId(), TrackUtils.DB_PRAISED_NAME,
 				TrackUtils.TB_PRAISED_NAME, 1);
 
 		if (!hadPraised) {
 			addCurrentToDataBase();
 			return true;
 		} else {
-			mQuerTools.removeTrackFrmDatabase(getCurrentTrackId(), TrackUtils.DB_PRAISED_NAME,
+			mQueryTools.removeTrackFrmDatabase(getCurrentTrackId(), TrackUtils.DB_PRAISED_NAME,
 					TrackUtils.TB_PRAISED_NAME, 1);
 			return false;
 		}
 
+	}
+	
+	public boolean checkIfPraised() {
+		return mQueryTools.checkIfHasAsFavourite(getCurrentTrackId(), TrackUtils.DB_PRAISED_NAME, TrackUtils.TB_PRAISED_NAME,
+				1);
+	}
+
+	// 播放 状态改变时调用
+	private void onStateChanged() {
+		mStateChangedListener.onPlayStateChanged();
+		new BlurImageCreater().execute();
 	}
 
 	// 把歌曲信息添加到收藏列表的数据库中
@@ -249,7 +293,7 @@ public class PlayService extends Service {
 		values.put("TRACK_ID", getCurrentTrackId());
 		values.put("ALBUM_ID", getCurrentAlbumId());
 		values.put("DURATION", getCurrentDuration());
-		mQuerTools.addToDb(values, TrackUtils.DB_PRAISED_NAME, TrackUtils.TB_PRAISED_NAME, 1);
+		mQueryTools.addToDb(values, TrackUtils.DB_PRAISED_NAME, TrackUtils.TB_PRAISED_NAME, 1);
 	}
 
 	// 监听耳机插入状态
@@ -263,8 +307,7 @@ public class PlayService extends Service {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				if (mediaPlayer.isPlaying())
-					;
-				// pausePlayer();
+					pausePlayer();
 			}
 
 		};
@@ -285,7 +328,7 @@ public class PlayService extends Service {
 
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				// pausePlayer();
+				pausePlayer();
 			}
 
 		};
@@ -297,12 +340,6 @@ public class PlayService extends Service {
 		public PlayService getService() {
 			return PlayService.this;
 		}
-	}
-
-	// 和Activity绑定后返回给Activity的对象
-	@Override
-	public IBinder onBind(Intent intent) {
-		return mBinder;
 	}
 
 	// 凡是实现该StateChangedListener的都可以监听
@@ -340,17 +377,17 @@ public class PlayService extends Service {
 			nextPendingIntent = PendingIntent.getBroadcast(this, 0, nextIntent, 0);
 		}
 
-		// onClick
+		// 监听通知栏按钮
 		mRemoteView.setOnClickPendingIntent(R.id.btn_noti_next, nextPendingIntent);
 		mRemoteView.setOnClickPendingIntent(R.id.btn_noti_pause, playPendingIntent);
-		// manager
+		// 通知
 		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotification = mBuilder.build();
 		mNotificationManager.notify(NOTI_ID, mNotification);
 	}
 
 	/**
-	 * update notification content
+	 * 更新通知栏内容
 	 */
 	public void updateNotification() {
 
@@ -374,7 +411,7 @@ public class PlayService extends Service {
 	}
 
 	/**
-	 * initial broadcast receiver for notification
+	 * 设置通知栏BroadcastReceiver
 	 */
 	private void setNotiControlReceiver() {
 
@@ -403,5 +440,37 @@ public class PlayService extends Service {
 		filter.addAction(ACTION_PLAY_TRACK);
 		registerReceiver(mNotiControlReceiver, filter);
 	}
+
+	// 异步获得产生模糊背景图像
+	final class BlurImageCreater extends AsyncTask<Void, Void, Drawable> {
+
+		@Override
+		protected Drawable doInBackground(Void... arg0) {
+
+			return getBluredCurrentArt();
+		}
+
+		@Override
+		protected void onPostExecute(Drawable result) {
+
+			notifyBlurIsReady(result);
+			super.onPostExecute(result);
+		}
+	}
+
+	// 获得当前模糊化的背景图片
+	public Drawable getBluredCurrentArt() {
+		Bitmap bm = getCurrentTrackArt();
+		if (bm == null) {
+			bm = BitmapFactory.decodeResource(getResources(), R.drawable.default_artist);
+		}
+		return BitmapToBlur.BoxBlurFilter(bm);
+	}
+
+	private void notifyBlurIsReady(Drawable drawable) {
+		// MainActivity中获取设置背景图片，通知服务来处理背景图片
+		((MainActivity) mActivityCallback).onBlurReady(drawable);
+	}
+
 
 }
