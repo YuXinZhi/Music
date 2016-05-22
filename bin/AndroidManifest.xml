@@ -28,6 +28,14 @@
         </activity>
         <activity android:name="com.example.music.MainActivity" >
         </activity>
+
+        <service android:name="com.example.music.service.PlayService" >
+        </service>
+
+        <receiver android:name="com.example.music.receiver.TrackNextReceiver" >
+        </receiver>
+        <receiver android:name="com.example.music.receiver.TrackPlayReceiver" >
+        </receiver>
     </application>
 
 </manifest>

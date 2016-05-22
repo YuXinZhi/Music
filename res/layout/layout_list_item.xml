@@ -22,7 +22,7 @@
             android:layout_marginLeft="5dp"
             android:src="@drawable/ic_launcher" />
 
-        <com.zhntd.nick.rocklite.views.RobotoLightTextView
+        <com.example.music.views.RobotoLightTextView
             android:id="@+id/line_two"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
             android:textColor="@color/gray_light"
             android:textSize="11sp" />
 
-        <com.zhntd.nick.rocklite.views.RobotoLightTextView
+        <com.example.music.views.RobotoLightTextView
             android:id="@+id/line_one"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

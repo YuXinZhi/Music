@@ -7,6 +7,7 @@ import com.dk.animation.SwitchAnimationUtil;
 import com.dk.animation.SwitchAnimationUtil.AnimationType;
 import com.example.music.fragement.AllTracksFragment;
 import com.example.music.fragement.Base;
+import com.example.music.fragement.MenuDrawer;
 import com.example.music.service.PlayService;
 import com.example.music.service.PlayService.PlayServiceBinder;
 import com.example.music.service.PlayService.StateChangedListener;
@@ -14,8 +15,6 @@ import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import com.zhntd.nick.rocklite.R;
-import com.zhntd.nick.rocklite.fragment.MenuDrawer;
 
 import android.app.ActionBar;
 import android.content.ComponentName;
@@ -30,6 +29,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.widget.DrawerLayout;
@@ -74,11 +74,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	// 根布局
 	private RelativeLayout mRootLayout;
 
-
 	// 抽屉式菜单
 	private MenuDrawer mNavigationDrawerFragment;
 	private DrawerLayout mDrawerLayout = null;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -113,6 +112,17 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 		// 初始化菜单
 		mDrawerLayout = mNavigationDrawerFragment.mDrawerLayout;
+	}
+
+	// 呼出菜单
+	private void toogleDrawer() {
+
+		if (mDrawerLayout.isDrawerVisible(GravityCompat.START)) {
+			mDrawerLayout.closeDrawer(GravityCompat.START);
+		} else {
+			mDrawerLayout.openDrawer(GravityCompat.START);
+		}
+
 	}
 
 	@Override
@@ -184,7 +194,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 			@Override
 			public void onClick(View v) {
 				// 弹出菜单
-				// toogleDrawer();
+				toogleDrawer();
 			}
 		});
 
@@ -410,7 +420,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	// 初始化动画
 	private void initAnim() {
 		mAnimation = AnimationUtils.loadAnimation(this, R.anim.view_push_down_in);
-
 		mAnimationFade = AnimationUtils.loadAnimation(this, R.anim.fade_in);
 	}
 }

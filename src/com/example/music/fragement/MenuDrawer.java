@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+@SuppressWarnings("deprecation")
 public class MenuDrawer extends Fragment {
 
 	private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";

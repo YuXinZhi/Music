@@ -17,7 +17,7 @@
         android:padding="8dp"
         android:src="@drawable/actionbar_logo" />
 
-    <com.zhntd.nick.rocklite.views.HeroTextView
+    <com.example.music.views.HeroTextView
         android:id="@+id/textView1"
         android:layout_width="20dp"
         android:layout_height="match_parent"
