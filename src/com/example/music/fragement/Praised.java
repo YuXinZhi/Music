@@ -34,7 +34,7 @@ public class Praised extends Base {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mListView = (ListView) inflater.inflate(R.layout.fragment_all, null);
 		display();
-		return super.onCreateView(inflater, container, savedInstanceState);
+		return mListView;
 
 	}
 
