@@ -7,6 +7,7 @@ import com.example.music.R;
 import com.example.music.adapter.TrackListAdapter;
 import com.example.music.model.Track;
 import com.example.music.service.PlayService;
+import com.example.music.utils.QueryTools;
 import com.example.music.utils.TrackUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -21,20 +22,24 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-public class AllTracksFragment extends Base {
+public class Praised extends Base {
+
 	private ListView mListView;
 	private TrackListAdapter mAdapter;
 
-	// fragment依赖的Activity
 	private MainActivity mActivity;
-
 	private PlayService mServiceCallback;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mListView = (ListView) inflater.inflate(R.layout.fragment_all, null);
 		display();
-		return mListView;
+		return super.onCreateView(inflater, container, savedInstanceState);
+
+	}
+
+	private void display() {
+		new TrackLoaderTask().execute();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -42,19 +47,16 @@ public class AllTracksFragment extends Base {
 	public void onAttach(Activity activity) {
 		mActivity = (MainActivity) activity;
 		mServiceCallback = mActivity.getServiceCallback();
+		// Log.i("music", mServiceCallback.toString());
 		super.onAttach(activity);
 	}
 
 	@Override
 	public void onPraisedPressed() {
-
-	}
-
-	void display() {
 		new TrackLoaderTask().execute();
 	}
 
-	// 异步加载歌曲条目
+	// 异步加载
 	final class TrackLoaderTask extends AsyncTask<Void, Void, List<Track>> {
 
 		@Override
@@ -67,30 +69,45 @@ public class AllTracksFragment extends Base {
 			inflateListView(result);
 			super.onPostExecute(result);
 		}
-
-	}
-
-	private void inflateListView(final List<Track> tracks) {
-	//	Log.i("tracks", tracks.size() + "============="); 14
-		mAdapter = new TrackListAdapter(tracks, getActivity(), ImageLoader.getInstance());
-		mListView.setAdapter(mAdapter);
-		// 设置播放列表
-		mServiceCallback.setupPLayList(tracks);
-
-		mListView.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if (mServiceCallback.getPlayList() != tracks)
-					mServiceCallback.setupPLayList(tracks);
-				mServiceCallback.setCurrentPosition(position);
-				mServiceCallback.playTrack(position);
-			}
-		});
 	}
 
 	List<Track> getTracks() {
-		return TrackUtils.getTrackList(getActivity());
+		return new QueryTools(getActivity()).getListFrmDataBase(TrackUtils.DB_PRAISED_NAME, TrackUtils.TB_PRAISED_NAME,
+				1, "TITLE DESC", false);
+	}
+
+	void inflateListView(final List<Track> tracks) {
+
+		if (mAdapter == null) {
+			mAdapter = new TrackListAdapter(tracks, getActivity(), ImageLoader.getInstance());
+			mListView.setAdapter(mAdapter);
+			mServiceCallback.setupPLayList(tracks);
+			mListView.setOnItemClickListener(new OnItemClickListener() {
+
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+					mServiceCallback.setupPLayList(tracks);
+					mServiceCallback.setCurrentPosition(position);
+					mServiceCallback.playTrack(position);
+
+				}
+			});
+		} else {
+			mAdapter.updateList(tracks);
+			mListView.setOnItemClickListener(new OnItemClickListener() {
+
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+					mServiceCallback.setupPLayList(tracks);
+					mServiceCallback.setCurrentPosition(position);
+					mServiceCallback.playTrack(position);
+
+				}
+			});
+		}
+
 	}
 
 }

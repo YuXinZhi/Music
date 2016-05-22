@@ -8,6 +8,8 @@ import com.dk.animation.SwitchAnimationUtil.AnimationType;
 import com.example.music.fragement.AllTracksFragment;
 import com.example.music.fragement.Base;
 import com.example.music.fragement.MenuDrawer;
+import com.example.music.fragement.Online;
+import com.example.music.fragement.Praised;
 import com.example.music.service.PlayService;
 import com.example.music.service.PlayService.PlayServiceBinder;
 import com.example.music.service.PlayService.StateChangedListener;
@@ -84,12 +86,17 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		// 音量控制键控制音乐音量
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		setContentView(R.layout.activity_main);
+		if (mRootLayout == null) {
+			mRootLayout = (RelativeLayout) findViewById(R.id.root_layout);
+		}
 
 		// 自定义Actionbar
 		styleActionBar();
 
 		// 初始化控制栏
 		findControlButtons();
+		initImageLoader(this);
+
 		// 初始化子页面
 		initPages();
 
@@ -139,6 +146,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		super.onDestroy();
 	}
 
+	/**
+	 * 应用组件(客户端)可以调用bindService()绑定到一个service．Android系统之后调用service的onBind()
+	 * 方法，它返回一个用来与service交互的IBinder．
+	 */
 	private void bindToService() {
 		mServiceConnection = new ServiceConnection() {
 
@@ -147,12 +158,14 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 			}
 
+			// 系统调用这个来传送在service的onBind()中返回的IBinder．
 			@Override
 			public void onServiceConnected(ComponentName name, IBinder iBinder) {
-				// PlayServiceBinder在service中定义
+				// PlayServiceBinder在service中定义,传递Service的对象
 				PlayServiceBinder playBinder = (PlayServiceBinder) iBinder;
 				mPlayService = playBinder.getService();
-				Log.i("music", mPlayService.toString());
+				//Log.i("music", mPlayService.toString());
+				
 				// 告诉服务监听MainActivity
 				mPlayService.setActivityCallback(MainActivity.this);
 
@@ -165,13 +178,19 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 		final Intent intent = new Intent();
 		intent.setClass(MainActivity.this, PlayService.class);
-		bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
+		boolean b = bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
+		System.out.println(b);
 	}
 
 	void startService() {
 		final Intent intent = new Intent();
 		intent.setClass(MainActivity.this, PlayService.class);
 		startService(intent);
+	}
+
+	// fragment获取Service对象
+	public PlayService getServiceCallback() {
+		return mPlayService;
 	}
 
 	private void styleActionBar() {
@@ -232,8 +251,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	private void initPages() {
 		mFragments = new ArrayList<Base>();
 		mFragments.add(new AllTracksFragment());
-		mFragments.add(new AllTracksFragment());
-		mFragments.add(new AllTracksFragment());
+		mFragments.add(new Praised());
+		mFragments.add(new Online());
 	}
 
 	@SuppressWarnings("deprecation")
@@ -329,6 +348,16 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 			@Override
 			public void onClick(View arg0) {
+				if (mPlayService != null) {
+					if (mPlayService.onPraisedBtnPressed()) {
+						mPraiseButton.setImageResource(R.drawable.btn_loved_prs);
+					} else {
+						mPraiseButton.setImageResource(R.drawable.btn_love_prs);
+					}
+				}
+				// 更新收藏页面的收藏按钮
+				mFragments.get(1).onPraisedPressed();
+
 			}
 		});
 	}

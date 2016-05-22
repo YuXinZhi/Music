@@ -17,6 +17,7 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,13 +43,14 @@ public class TrackListAdapter extends BaseAdapter {
 
 	public TrackListAdapter(List<Track> mTracks, Context mContext, ImageLoader imageLoader) {
 		super();
+		Log.i("TrackListAdapter", mTracks.size()+"mContext="+mContext );
 		this.mTracks = mTracks;
 		this.mContext = mContext;
 		this.mImageLoader = imageLoader;
 		initLoader();
 	}
 
-	// 判断ListView是否在滑动
+	// 判断ListView是否在滑动,这是
 	public void isListScrolling(boolean scrolling) {
 		this.isListScrolling = scrolling;
 		if (!scrolling)
@@ -68,18 +70,19 @@ public class TrackListAdapter extends BaseAdapter {
 
 	@Override
 	public Object getItem(int position) {
-		return null;
+		return mTracks.get(position);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return 0;
+		return position;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		Log.i("position mTracks.size()", mTracks.size() + "");
 		if (convertView == null) {
-			convertView = LayoutInflater.from(mContext).inflate(0, null);
+			convertView = LayoutInflater.from(mContext).inflate(R.layout.layout_list_item, null);
 			mViewHolderList = new ViewHolderList(convertView);
 			convertView.setTag(mViewHolderList);
 		} else {
@@ -88,7 +91,9 @@ public class TrackListAdapter extends BaseAdapter {
 
 		// 更新ListView列表条目中的内容
 		Track track = mTracks.get(position);
-		mViewHolderList.mTitleView.setText(track.getTitle());
+		
+		Log.i("track","mViewHolderList="+mViewHolderList+"mViewHolderList.mTitleView"+mViewHolderList.mTitleView);
+		mViewHolderList.mTitleView.setText(track.getTitle());//null
 		mViewHolderList.mArtistView.setText(track.getArtist());
 		mViewHolderList.mDuration.setText(TrackUtils.makeTimeString(mContext, track.getDuration()));
 

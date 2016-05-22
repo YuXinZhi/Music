@@ -44,7 +44,7 @@ public class PlayService extends Service {
 	public static final String ACTION_NEXT_TRACK = "com.example.music.next";
 	public static final String ACTION_PLAY_TRACK = "com.example.music.play";
 
-	private PlayServiceBinder mBinder;
+	private PlayServiceBinder mBinder = new PlayServiceBinder();
 
 	private final MediaPlayer mediaPlayer = new MediaPlayer();
 
@@ -272,10 +272,10 @@ public class PlayService extends Service {
 		}
 
 	}
-	
+
 	public boolean checkIfPraised() {
-		return mQueryTools.checkIfHasAsFavourite(getCurrentTrackId(), TrackUtils.DB_PRAISED_NAME, TrackUtils.TB_PRAISED_NAME,
-				1);
+		return mQueryTools.checkIfHasAsFavourite(getCurrentTrackId(), TrackUtils.DB_PRAISED_NAME,
+				TrackUtils.TB_PRAISED_NAME, 1);
 	}
 
 	// 播放 状态改变时调用
@@ -471,6 +471,5 @@ public class PlayService extends Service {
 		// MainActivity中获取设置背景图片，通知服务来处理背景图片
 		((MainActivity) mActivityCallback).onBlurReady(drawable);
 	}
-
 
 }

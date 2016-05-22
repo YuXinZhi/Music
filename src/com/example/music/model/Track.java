@@ -73,4 +73,12 @@ public class Track {
 		this.duration = duration;
 	}
 
+	@Override
+	public String toString() {
+		return "Track [title=" + title + ", art=" + art + ", artist=" + artist + ", id=" + id + ", albumId=" + albumId
+				+ ", url=" + url + ", duration=" + duration + "]";
+	}
+	
+	
+
 }

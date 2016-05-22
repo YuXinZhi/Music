@@ -28,11 +28,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/transparent" />
-
         <fragment
             android:id="@+id/navigation_drawer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:name="com.example.music.fragement.MenuDrawer"
             android:layout_gravity="start"
             android:background="@color/gray" />
     </android.support.v4.widget.DrawerLayout>

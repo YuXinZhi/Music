@@ -75,6 +75,7 @@ public class QueryTools {
 			++dbVersion;
 			helper.onUpgrade(database, --dbVersion, dbVersion);
 		}
+		Log.i(TAG, resultList.size() + "::::resultList::::::::::::::::::");
 		return resultList;
 	}
 

@@ -28,6 +28,8 @@
         </activity>
         <activity android:name="com.example.music.MainActivity" >
         </activity>
+        <activity android:name="com.example.music.OnlineMusicSite" >
+        </activity>
 
         <service android:name="com.example.music.service.PlayService" >
         </service>
