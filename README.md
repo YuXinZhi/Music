@@ -1,2 +1,2 @@
 # Music
-A music player base on a open music player project:https://github.com/NickAndroid/RockLite
+A music player based on a open-source music player project:https://github.com/NickAndroid/RockLite
