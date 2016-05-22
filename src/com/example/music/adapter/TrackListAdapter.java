@@ -115,6 +115,7 @@ public class TrackListAdapter extends BaseAdapter {
 		public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
 			if (loadedImage != null) {
 				ImageView imageView = (ImageView) view;
+				// 优先获取缓存的图片
 				boolean firstDisplay = !displayedImages.contains(imageUri);
 				FadeInBitmapDisplayer.animate(imageView, 1000);
 				if (firstDisplay) {

@@ -4,10 +4,11 @@ import java.util.List;
 
 import com.example.music.MainActivity;
 import com.example.music.R;
+import com.example.music.adapter.TrackListAdapter;
 import com.example.music.model.Track;
+import com.example.music.service.PlayService;
 import com.example.music.utils.TrackUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.zhntd.nick.rocklite.loaders.TrackListAdapter;
 
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -16,15 +17,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
 public class AllTracksFragment extends Base {
 	private ListView mListView;
-	//private TrackListAdapter mAdapter;
+	private TrackListAdapter mAdapter;
 
 	// fragment依赖的Activity
 	private MainActivity mActivity;
+
+	private PlayService mServiceCallback;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -44,6 +47,7 @@ public class AllTracksFragment extends Base {
 
 	}
 
+	// 异步加载歌曲条目
 	final class TrackLoaderTask extends AsyncTask<Void, Void, List<Track>> {
 
 		@Override
@@ -63,13 +67,12 @@ public class AllTracksFragment extends Base {
 		mAdapter = new TrackListAdapter(tracks, getActivity(), ImageLoader.getInstance());
 		mListView.setAdapter(mAdapter);
 
-		mServiceCallback.setupPLayList(tracks);
+		//mServiceCallback.setupPLayList(tracks);
 
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
 
 			}
 		});
