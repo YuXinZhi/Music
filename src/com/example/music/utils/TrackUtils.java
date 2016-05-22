@@ -17,6 +17,11 @@ import android.provider.MediaStore.Audio.AudioColumns;
 import android.provider.MediaStore.MediaColumns;
 
 public class TrackUtils {
+
+	// 收藏的歌曲数据库名和表名
+	public static String DB_PRAISED_NAME = "DATA_BASE_PRAISED";
+	public static String TB_PRAISED_NAME = "TABLE_PRAISED";
+
 	// 查询外部存储
 	/**
 	 * 访问sdcard中的音频文件的URI为MediaStore.Audio.Media.EXTERNAL_CONTENT_URI，
