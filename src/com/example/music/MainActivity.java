@@ -311,7 +311,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 				mNaViews.get(i).setBackground(getResources().getDrawable(R.drawable.pressed_to));
 		}
 		// 设置选中的图标背景
-		mNaViews.get(position).setBackground(getResources().getDrawable(R.drawable.seleted));
+		mNaViews.get(position).setBackground(getResources().getDrawable(R.drawable.selected));
 
 	}
 

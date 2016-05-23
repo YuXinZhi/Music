@@ -50,7 +50,7 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/favour"
-        android:background="@drawable/seleted"
+        android:background="@drawable/selected"
         android:clickable="true"
         android:padding="8dp"
         android:src="@drawable/actionbar_music" />
