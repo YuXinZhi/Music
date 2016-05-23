@@ -47,6 +47,7 @@ public class Praised extends Base {
 	public void onAttach(Activity activity) {
 		mActivity = (MainActivity) activity;
 		mServiceCallback = mActivity.getServiceCallback();
+		Log.i("Praised--Ser", mServiceCallback + "");
 		// Log.i("music", mServiceCallback.toString());
 		super.onAttach(activity);
 	}
@@ -77,6 +78,11 @@ public class Praised extends Base {
 	}
 
 	void inflateListView(final List<Track> tracks) {
+
+		for (int i = 0; i < tracks.size(); i++) {
+			Log.i("title==", tracks.get(i).getTitle());
+		}
+		Log.i("mAdapter==null", mAdapter + "");
 
 		if (mAdapter == null) {
 			mAdapter = new TrackListAdapter(tracks, getActivity(), ImageLoader.getInstance());

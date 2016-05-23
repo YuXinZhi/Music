@@ -14,6 +14,7 @@ import com.example.music.fragement.Praised;
 import com.example.music.service.PlayService;
 import com.example.music.service.PlayService.PlayServiceBinder;
 import com.example.music.service.PlayService.StateChangedListener;
+import com.example.music.utils.TrackUtils;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -36,7 +37,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
@@ -44,6 +44,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 /**
@@ -51,6 +53,8 @@ import android.widget.TextView;
  *
  */
 public class MainActivity extends FragmentActivity implements OnClickListener, StateChangedListener {
+
+	private final static int SEEKBARMAXVALUE = 200;
 
 	// 绑定服务
 	private ServiceConnection mServiceConnection;
@@ -71,7 +75,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 	// 底部控制栏控制按钮
 	private ImageButton mPlayButton, mNextButton, mPreviousButton, mPraiseButton;
-	private TextView titleTextView, artistTextView,mCurrentTime,mTotalTime;
+	private TextView titleTextView, artistTextView, mCurrentTime, mTotalTime;
 	private ImageView mArtImageView;
 
 	// 根布局
@@ -81,12 +85,14 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	private MenuDrawer mNavigationDrawerFragment;
 	private DrawerLayout mDrawerLayout = null;
 
+	private SeekBar mSeekBar;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// 音量控制键控制音乐音量
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
-		setContentView(R.layout.activity_main3);
+		setContentView(R.layout.activity_main);
 		if (mRootLayout == null) {
 			mRootLayout = (RelativeLayout) findViewById(R.id.root_layout);
 		}
@@ -244,15 +250,15 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 				mViewPager.setCurrentItem(1, true);
 			}
 		});
-		
+
 		mCdImageView.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				mViewPager.setCurrentItem(0, true);
 			}
 		});
-		
+
 		// 右侧4个导航图标
 		mNaViews = new ArrayList<ImageView>();
 		mNaViews.add(mCdImageView);
@@ -348,8 +354,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		// 歌曲名
 		titleTextView = (TextView) findViewById(R.id.title);
 		artistTextView = (TextView) findViewById(R.id.artist);
-		
-		mCurrentTime=findViewById(R.id.currentTime);
+
+		mCurrentTime = (TextView) findViewById(R.id.currentTime);
+		mTotalTime = (TextView) findViewById(R.id.totalTime);
+		mSeekBar = (SeekBar) findViewById(R.id.playSeekBar);
+		mSeekBar.setMax(SEEKBARMAXVALUE);
+		mSeekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
 		mPlayButton.setOnClickListener(this);
 		mPreviousButton.setOnClickListener(this);
 		mNextButton.setOnClickListener(this);
@@ -372,6 +382,26 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 			}
 		});
 	}
+
+	private OnSeekBarChangeListener mSeekBarChangeListener = new OnSeekBarChangeListener() {
+
+		// 拖拽停止时
+		@Override
+		public void onStopTrackingTouch(SeekBar seekBar) {
+			int progress = seekBar.getProgress();
+			mPlayService.seek(progress);
+		}
+
+		@Override
+		public void onStartTrackingTouch(SeekBar seekBar) {
+
+		}
+
+		@Override
+		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+		}
+	};
 
 	@Override
 	public void onClick(View v) {
@@ -416,7 +446,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		updateArtImage(mArtImageView);
 		updateTitle(mPlayService.getCurrentTitle());
 		updateArtist(mPlayService.getCurrentArtist());
+		updateTotalTime(mPlayService.getCurrentDuration());
 		updatePrisedImg();
+		mFragments.get(0).onPraisedPressed();
 
 	}
 
@@ -453,6 +485,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		}
 	}
 
+	public void updateTotalTime(long duration) {
+		mTotalTime.setText(TrackUtils.makeTimeString(this, duration));
+	}
+
 	public static void initImageLoader(Context context) {
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
 				.threadPriority(Thread.NORM_PRIORITY - 2).denyCacheImageMultipleSizesInMemory()
@@ -466,5 +502,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	private void initAnim() {
 		mAnimation = AnimationUtils.loadAnimation(this, R.anim.view_push_down_in);
 		mAnimationFade = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+	}
+
+	@Override
+	public void onPublish(int progress) {
+		mCurrentTime.setText("11:11");
+		progress = progress * SEEKBARMAXVALUE;
+		mSeekBar.setProgress(progress);
 	}
 }

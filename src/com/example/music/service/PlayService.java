@@ -89,7 +89,8 @@ public class PlayService extends Service {
 		mediaPlayer.setOnCompletionListener(mOnCompletionListener);
 		mQueryTools = new QueryTools(this);
 		// 开始更新进度的线程
-		mProgressUpdatedListener.execute(mPublishProgressRunnable);
+
+		// mProgressUpdatedListener.execute(mPublishProgressRunnable);
 	}
 
 	// 和Activity绑定后返回给Activity的对象
@@ -359,6 +360,8 @@ public class PlayService extends Service {
 	// Service内部接口，目的是监听播放页面状态的改变
 	public interface StateChangedListener {
 		void onPlayStateChanged();
+
+		void onPublish(int progress);
 	}
 
 	// 初始化通知栏
@@ -479,14 +482,6 @@ public class PlayService extends Service {
 		((MainActivity) mActivityCallback).onBlurReady(drawable);
 	}
 
-	public interface OnMusicEventListener {
-		public void onPublish(int percent);
-
-		public void onChange(int position);
-	}
-
-	private OnMusicEventListener mListener;
-
 	/**
 	 * 更新进度的线程
 	 */
@@ -494,12 +489,19 @@ public class PlayService extends Service {
 		@Override
 		public void run() {
 			for (;;) {
-				if (mediaPlayer != null && mediaPlayer.isPlaying() && mListener != null) {
-					mListener.onPublish(mediaPlayer.getCurrentPosition());
+				if (mediaPlayer != null && mediaPlayer.isPlaying() && mStateChangedListener != null) {
+					mStateChangedListener.onPublish(mediaPlayer.getCurrentPosition());
 				}
-				SystemClock.sleep(200);
+				SystemClock.sleep(1000);
 			}
 		}
 	};
+
+	// 进度条滑动到指定位置，只有在播放时才有效
+	public void seek(int progress) {
+		if (!getIsPlaying())
+			return;
+		mediaPlayer.seekTo(progress);
+	}
 
 }

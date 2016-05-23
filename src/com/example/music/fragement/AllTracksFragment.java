@@ -33,6 +33,7 @@ public class AllTracksFragment extends Base {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		mListView = (ListView) inflater.inflate(R.layout.fragment_all, null);
+		Log.i("onCreateView", "AllTracksFragmentonCreateView");
 		display();
 		return mListView;
 	}
@@ -42,6 +43,7 @@ public class AllTracksFragment extends Base {
 	public void onAttach(Activity activity) {
 		mActivity = (MainActivity) activity;
 		mServiceCallback = mActivity.getServiceCallback();
+		Log.i("AllTracks-ser", mServiceCallback + "");
 		super.onAttach(activity);
 	}
 
@@ -71,7 +73,7 @@ public class AllTracksFragment extends Base {
 	}
 
 	private void inflateListView(final List<Track> tracks) {
-	//	Log.i("tracks", tracks.size() + "============="); 14
+		// Log.i("tracks", tracks.size() + "============="); 14
 		mAdapter = new TrackListAdapter(tracks, getActivity(), ImageLoader.getInstance());
 		mListView.setAdapter(mAdapter);
 		// 设置播放列表

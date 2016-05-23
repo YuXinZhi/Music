@@ -19,7 +19,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class Player extends Base implements StateChangedListener {
+public class Player extends Base {
 	private LinearLayout mRootLayout;
 	private TextView mTitle;
 	private TextView mArtist;
@@ -30,7 +30,7 @@ public class Player extends Base implements StateChangedListener {
 
 	@Override
 	public void onPraisedPressed() {
-
+		updateTackInfo();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -39,6 +39,7 @@ public class Player extends Base implements StateChangedListener {
 
 		mActivity = (MainActivity) activity;
 		mServiceCallback = mActivity.getServiceCallback();
+		Log.i("Player-Ser", mServiceCallback + "");
 		super.onAttach(activity);
 	}
 
@@ -50,11 +51,6 @@ public class Player extends Base implements StateChangedListener {
 		mArt = (CDView) mRootLayout.findViewById(R.id.cd);
 		updateTackInfo();
 		return mRootLayout;
-	}
-
-	@Override
-	public void onPlayStateChanged() {
-		updateTackInfo();
 	}
 
 	private void updateTackInfo() {

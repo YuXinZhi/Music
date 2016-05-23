@@ -70,12 +70,12 @@ public class TrackListAdapter extends BaseAdapter {
 
 	@Override
 	public Object getItem(int position) {
-		return mTracks.get(position);
+		return null;
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return position;
+		return 0;
 	}
 
 	@Override

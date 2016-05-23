@@ -22,17 +22,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-           android:layout_marginTop="8dp"
+        android:layout_marginTop="8dp"
         android:text="unknowm artist"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/gray_light"
         android:textSize="11sp" />
 
     <com.example.music.views.CDView
-        android:layout_marginTop="10dp"
         android:id="@+id/cd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp" />
 
 </LinearLayout>
