@@ -9,7 +9,6 @@ import com.example.music.fragement.AllTracksFragment;
 import com.example.music.fragement.Base;
 import com.example.music.fragement.MenuDrawer;
 import com.example.music.fragement.Online;
-import com.example.music.fragement.Player;
 import com.example.music.fragement.Praised;
 import com.example.music.service.PlayService;
 import com.example.music.service.PlayService.PlayServiceBinder;
@@ -50,7 +49,7 @@ import android.widget.TextView;
  * 主界面
  *
  */
-public class MainActivity extends FragmentActivity implements OnClickListener, StateChangedListener {
+public class MainActivity2 extends FragmentActivity implements OnClickListener, StateChangedListener {
 
 	// 绑定服务
 	private ServiceConnection mServiceConnection;
@@ -59,7 +58,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	// 导航栏适配器
 	private SectionsPagerAdapter mSectionsPagerAdapter;
 	// Actionbar中的图标
-	private ImageView mLogoImageView, mCdImageView, mLocalImageView, mFavouriteImageView, mInternetImageView;
+	private ImageView mLogoImageView, mLocalImageView, mFavouriteImageView, mInternetImageView;
 	private List<ImageView> mNaViews;
 
 	// ViewPager中的各个子页面
@@ -71,7 +70,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 	// 底部控制栏控制按钮
 	private ImageButton mPlayButton, mNextButton, mPreviousButton, mPraiseButton;
-	private TextView titleTextView, artistTextView,mCurrentTime,mTotalTime;
+	private TextView titleTextView;
 	private ImageView mArtImageView;
 
 	// 根布局
@@ -91,10 +90,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 			mRootLayout = (RelativeLayout) findViewById(R.id.root_layout);
 		}
 
+		
 		// 自定义Actionbar
 		styleActionBar();
 
-		// 初始化按钮
+		// 初始化控制栏
 		findControlButtons();
 		initImageLoader(this);
 
@@ -168,7 +168,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 				// Log.i("music", mPlayService.toString());
 
 				// 告诉服务监听MainActivity
-				mPlayService.setActivityCallback(MainActivity.this);
+				mPlayService.setActivityCallback(MainActivity2.this);
 
 				// 服务连接后更新页面更新页面
 				initPager();
@@ -178,14 +178,14 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		};
 
 		final Intent intent = new Intent();
-		intent.setClass(MainActivity.this, PlayService.class);
+		intent.setClass(MainActivity2.this, PlayService.class);
 		boolean b = bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
 		System.out.println(b);
 	}
 
 	void startService() {
 		final Intent intent = new Intent();
-		intent.setClass(MainActivity.this, PlayService.class);
+		intent.setClass(MainActivity2.this, PlayService.class);
 		startService(intent);
 	}
 
@@ -204,7 +204,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 		// 4个图标
 		mLogoImageView = (ImageView) findViewById(R.id.app_icon);
-		mCdImageView = (ImageView) findViewById(R.id.cd);
 		mFavouriteImageView = (ImageView) findViewById(R.id.favour);
 		mLocalImageView = (ImageView) findViewById(R.id.local);
 		mInternetImageView = (ImageView) findViewById(R.id.internet);
@@ -216,7 +215,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 			public void onClick(View v) {
 				// 弹出菜单
 				// toogleDrawer();
-				Intent intent = new Intent(MainActivity.this, PlayActivity.class);
+				Intent intent = new Intent(MainActivity2.this, PlayActivity.class);
 				startActivity(intent);
 			}
 		});
@@ -225,7 +224,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 			@Override
 			public void onClick(View arg0) {
-				mViewPager.setCurrentItem(3, true);
+				mViewPager.setCurrentItem(2, true);
 			}
 		});
 
@@ -233,7 +232,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 			@Override
 			public void onClick(View v) {
-				mViewPager.setCurrentItem(2, true);
+				mViewPager.setCurrentItem(1, true);
 			}
 		});
 
@@ -241,21 +240,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 			@Override
 			public void onClick(View v) {
-				mViewPager.setCurrentItem(1, true);
-			}
-		});
-		
-		mCdImageView.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
 				mViewPager.setCurrentItem(0, true);
 			}
 		});
-		
-		// 右侧4个导航图标
+		// 右侧三个导航图标
 		mNaViews = new ArrayList<ImageView>();
-		mNaViews.add(mCdImageView);
 		mNaViews.add(mLocalImageView);
 		mNaViews.add(mFavouriteImageView);
 		mNaViews.add(mInternetImageView);
@@ -264,7 +253,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 	private void initPages() {
 		mFragments = new ArrayList<Base>();
-		mFragments.add(new Player());
 		mFragments.add(new AllTracksFragment());
 		mFragments.add(new Praised());
 		mFragments.add(new Online());
@@ -347,13 +335,17 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		mArtImageView = (ImageView) findViewById(R.id.iv_art_bottom);
 		// 歌曲名
 		titleTextView = (TextView) findViewById(R.id.title);
-		artistTextView = (TextView) findViewById(R.id.artist);
-		
-		mCurrentTime=findViewById(R.id.currentTime);
+
 		mPlayButton.setOnClickListener(this);
 		mPreviousButton.setOnClickListener(this);
 		mNextButton.setOnClickListener(this);
 
+		titleTextView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+			}
+		});
 		// 收藏按钮
 		mPraiseButton.setOnClickListener(new OnClickListener() {
 
@@ -367,7 +359,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 					}
 				}
 				// 更新收藏页面的收藏按钮
-				mFragments.get(2).onPraisedPressed();
+				mFragments.get(1).onPraisedPressed();
 
 			}
 		});
@@ -415,7 +407,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		// 专辑封面
 		updateArtImage(mArtImageView);
 		updateTitle(mPlayService.getCurrentTitle());
-		updateArtist(mPlayService.getCurrentArtist());
 		updatePrisedImg();
 
 	}
@@ -438,10 +429,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 	public void updateTitle(String title) {
 		titleTextView.setText(title);
-	}
-
-	public void updateArtist(String artist) {
-		artistTextView.setText(artist);
 	}
 
 	public void updatePrisedImg() {

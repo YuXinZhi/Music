@@ -3,6 +3,8 @@ package com.example.music.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.example.music.MainActivity;
 import com.example.music.R;
@@ -33,6 +35,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -74,6 +77,8 @@ public class PlayService extends Service {
 
 	private QueryTools mQueryTools;
 
+	private ExecutorService mProgressUpdatedListener = Executors.newSingleThreadExecutor();
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -83,6 +88,8 @@ public class PlayService extends Service {
 		initNotification();
 		mediaPlayer.setOnCompletionListener(mOnCompletionListener);
 		mQueryTools = new QueryTools(this);
+		// 开始更新进度的线程
+		mProgressUpdatedListener.execute(mPublishProgressRunnable);
 	}
 
 	// 和Activity绑定后返回给Activity的对象
@@ -471,5 +478,28 @@ public class PlayService extends Service {
 		// MainActivity中获取设置背景图片，通知服务来处理背景图片
 		((MainActivity) mActivityCallback).onBlurReady(drawable);
 	}
+
+	public interface OnMusicEventListener {
+		public void onPublish(int percent);
+
+		public void onChange(int position);
+	}
+
+	private OnMusicEventListener mListener;
+
+	/**
+	 * 更新进度的线程
+	 */
+	private Runnable mPublishProgressRunnable = new Runnable() {
+		@Override
+		public void run() {
+			for (;;) {
+				if (mediaPlayer != null && mediaPlayer.isPlaying() && mListener != null) {
+					mListener.onPublish(mediaPlayer.getCurrentPosition());
+				}
+				SystemClock.sleep(200);
+			}
+		}
+	};
 
 }

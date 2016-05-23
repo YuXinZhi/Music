@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:orientation="vertical" >
+
+    <com.example.music.views.RobotoLightTextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:singleLine="true"
+        android:text="unknown track"
+        android:textColor="@color/gray_light"
+        android:textSize="18sp" />
+
+    <com.example.music.views.RobotoLightTextView
+        android:id="@+id/artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+           android:layout_marginTop="8dp"
+        android:text="unknowm artist"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/gray_light"
+        android:textSize="11sp" />
+
+    <com.example.music.views.CDView
+        android:layout_marginTop="10dp"
+        android:id="@+id/cd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+
+</LinearLayout>

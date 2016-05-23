@@ -22,7 +22,7 @@
         android:layout_width="20dp"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/local"
+        android:layout_toLeftOf="@+id/cd"
         android:layout_toRightOf="@+id/app_icon"
         android:background="@drawable/pressed_to"
         android:clickable="true"
@@ -30,7 +30,20 @@
         android:text="Music"
         android:textColor="@color/gray_light"
         android:textSize="@dimen/font_size_actionbar" />
+    
+    
 
+    <ImageView
+        android:id="@+id/cd"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/local"
+        android:background="@drawable/pressed_to"
+        android:clickable="true"
+        android:padding="8dp"
+        android:src="@drawable/actionbar_disc" />
+    
     <ImageView
         android:id="@+id/local"
         android:layout_width="wrap_content"
@@ -50,7 +63,7 @@
         android:layout_toLeftOf="@+id/internet"
         android:clickable="true"
         android:padding="8dp"
-        android:src="@drawable/action_favorite" />
+        android:src="@drawable/actionbar_favorite" />
 
     <ImageView
         android:id="@+id/internet"

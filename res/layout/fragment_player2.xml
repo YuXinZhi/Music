@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:orientation="vertical" >
+
+    <com.example.music.views.RobotoLightTextView
+        android:id="@+id/line_one"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="26dp"
+        android:layout_marginTop="5dp"
+        android:layout_toRightOf="@+id/art"
+        android:singleLine="true"
+        android:text="unknown track"
+        android:textColor="@color/gray_light"
+        android:textSize="18sp" />
+
+    <com.example.music.views.RobotoLightTextView
+        android:id="@+id/line_two"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/line_one"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="5dp"
+        android:text="unknowm artist"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/gray_light"
+        android:textSize="11sp" />
+
+    <com.zhntd.nick.rocklite.views.CDView
+        android:id="@+id/play_cdview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
+</LinearLayout>

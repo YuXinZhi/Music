@@ -56,7 +56,7 @@ public class Praised extends Base {
 		new TrackLoaderTask().execute();
 	}
 
-	// 异步加载
+	// 异步任务
 	final class TrackLoaderTask extends AsyncTask<Void, Void, List<Track>> {
 
 		@Override
