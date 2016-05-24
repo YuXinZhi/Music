@@ -8,7 +8,7 @@ import com.example.music.adapter.TrackListAdapter;
 import com.example.music.model.Track;
 import com.example.music.service.PlayService;
 import com.example.music.utils.QueryTools;
-import com.example.music.utils.TrackUtils;
+import com.example.music.utils.TrackUtils.Defs;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.app.Activity;
@@ -22,7 +22,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-public class Praised extends Base {
+public class Praised extends Base implements Defs {
 
 	private ListView mListView;
 	private TrackListAdapter mAdapter;
@@ -74,8 +74,7 @@ public class Praised extends Base {
 	}
 
 	List<Track> getTracks() {
-		return new QueryTools(getActivity()).getListFrmDataBase(TrackUtils.DB_PRAISED_NAME, TrackUtils.TB_PRAISED_NAME,
-				1, "TITLE DESC", false);
+		return new QueryTools(getActivity()).getListFrmDataBase(DB_TRACK_NAME, TB_PRAISED_NAME, 1, "TITLE DESC", false);
 	}
 
 	void inflateListView(final List<Track> tracks) {

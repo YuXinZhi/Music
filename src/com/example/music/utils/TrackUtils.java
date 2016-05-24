@@ -19,9 +19,19 @@ import android.provider.MediaStore.MediaColumns;
 
 public class TrackUtils {
 
-	// 收藏的歌曲数据库名和表名
-	public static String DB_PRAISED_NAME = "DATA_BASE_PRAISED";
-	public static String TB_PRAISED_NAME = "TABLE_PRAISED";
+	public interface Defs {
+		// 收藏的歌曲数据库名和表名
+		public static final String DB_TRACK_NAME = "DB_TRACK_NAME";
+		public static final String TB_PRAISED_NAME = "TABLE_PRAISED";
+
+		public static final String TB_ALLTRCKS_NAME = "TABLE_ALLTRCKS_NAME";
+
+		public static final String MYSP = "com.example.music.sharedpreferences";
+		public static final String LASTPOSITION = "LASTPOSITION";
+		public static final int MODE_ALL = 0;
+		public static final int MODE_SINGGLE = 1;
+		public static final int MODE_SHUFFLE = 2;
+	}
 
 	// 查询外部存储
 	/**

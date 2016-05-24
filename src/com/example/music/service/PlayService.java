@@ -13,6 +13,7 @@ import com.example.music.receiver.TrackNextReceiver;
 import com.example.music.receiver.TrackPlayReceiver;
 import com.example.music.utils.QueryTools;
 import com.example.music.utils.TrackUtils;
+import com.example.music.utils.TrackUtils.Defs;
 import com.example.music.views.BitmapToBlur;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -26,6 +27,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -40,13 +42,16 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-public class PlayService extends Service {
+public class PlayService extends Service implements Defs {
 
 	// 定义通知栏播放按钮的Action
 	public static final String ACTION_PREVIOUS_TRACK = "com.example.music.previous";
 	public static final String ACTION_NEXT_TRACK = "com.example.music.next";
 	public static final String ACTION_PLAY_TRACK = "com.example.music.play";
-
+	SharedPreferences sp;
+	private static int lastPosition = -1;
+	// 循环模式
+	private static int mode;
 	private PlayServiceBinder mBinder = new PlayServiceBinder();
 
 	private final MediaPlayer mediaPlayer = new MediaPlayer();
@@ -86,6 +91,7 @@ public class PlayService extends Service {
 		initPhoneStateChangeListener();
 		setNotiControlReceiver();
 		initNotification();
+
 		mediaPlayer.setOnCompletionListener(mOnCompletionListener);
 		mQueryTools = new QueryTools(this);
 		// 开始更新进度的线程
@@ -267,23 +273,20 @@ public class PlayService extends Service {
 	// 收藏
 	public boolean onPraisedBtnPressed() {
 
-		boolean hadPraised = mQueryTools.checkIfHasAsFavourite(getCurrentTrackId(), TrackUtils.DB_PRAISED_NAME,
-				TrackUtils.TB_PRAISED_NAME, 1);
+		boolean hadPraised = mQueryTools.checkIfHasAsFavourite(getCurrentTrackId(), DB_TRACK_NAME, TB_PRAISED_NAME, 1);
 
 		if (!hadPraised) {
 			addCurrentToDataBase();
 			return true;
 		} else {
-			mQueryTools.removeTrackFrmDatabase(getCurrentTrackId(), TrackUtils.DB_PRAISED_NAME,
-					TrackUtils.TB_PRAISED_NAME, 1);
+			mQueryTools.removeTrackFrmDatabase(getCurrentTrackId(), DB_TRACK_NAME, TB_PRAISED_NAME, 1);
 			return false;
 		}
 
 	}
 
 	public boolean checkIfPraised() {
-		return mQueryTools.checkIfHasAsFavourite(getCurrentTrackId(), TrackUtils.DB_PRAISED_NAME,
-				TrackUtils.TB_PRAISED_NAME, 1);
+		return mQueryTools.checkIfHasAsFavourite(getCurrentTrackId(), DB_TRACK_NAME, TB_PRAISED_NAME, 1);
 	}
 
 	// 播放 状态改变时调用
@@ -301,7 +304,7 @@ public class PlayService extends Service {
 		values.put("TRACK_ID", getCurrentTrackId());
 		values.put("ALBUM_ID", getCurrentAlbumId());
 		values.put("DURATION", getCurrentDuration());
-		mQueryTools.addToDb(values, TrackUtils.DB_PRAISED_NAME, TrackUtils.TB_PRAISED_NAME, 1);
+		mQueryTools.addToDb(values, DB_TRACK_NAME, TB_PRAISED_NAME, 1);
 	}
 
 	// 监听耳机插入状态

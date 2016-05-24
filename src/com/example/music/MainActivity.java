@@ -14,7 +14,9 @@ import com.example.music.fragement.Praised;
 import com.example.music.service.PlayService;
 import com.example.music.service.PlayService.PlayServiceBinder;
 import com.example.music.service.PlayService.StateChangedListener;
+import com.example.music.utils.DataBaseHelper;
 import com.example.music.utils.TrackUtils;
+import com.example.music.utils.TrackUtils.Defs;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -25,6 +27,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -39,8 +43,8 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
@@ -54,9 +58,12 @@ import android.widget.TextView;
  * 主界面
  *
  */
-public class MainActivity extends FragmentActivity implements OnClickListener, StateChangedListener {
+public class MainActivity extends FragmentActivity implements OnClickListener, StateChangedListener, Defs {
 
 	private final static int SEEKBARMAXVALUE = 200;
+
+	SharedPreferences sp;
+	private int lastPosition;
 
 	// 绑定服务
 	private ServiceConnection mServiceConnection;
@@ -119,6 +126,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 		// 初始化菜单界面
 		initDrawer();
+
+		initDateBase(this);
+	}
+
+	private void initDateBase(Context context) {
+		// new DataBaseHelper(this, name, factory, version)
 	}
 
 	private void initDrawer() {
@@ -152,6 +165,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	protected void onDestroy() {
 		// 退出时，解除与服务的绑定
 		unbindService(mServiceConnection);
+		// 退出时记录上次播放的歌曲
+		Editor spEditor = sp.edit();
+		spEditor.putInt(LASTPOSITION, mPlayService.getCurrentPosition());
+		spEditor.commit();
 		super.onDestroy();
 	}
 
@@ -342,11 +359,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		public CharSequence getPageTitle(int position) {
 			return "MUSIC";
 		}
-
-//		@Override
-//		public int getItemPosition(Object object) {
-//			return POSITION_NONE;
-//		}
 
 	}
 
