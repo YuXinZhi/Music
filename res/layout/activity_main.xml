@@ -52,6 +52,7 @@
             android:layout_marginTop="4.0dip"
             android:clickable="true"
             android:gravity="center"
+            android:background="@color/gray"
             android:orientation="horizontal"
             android:paddingLeft="20.0dip"
             android:paddingRight="20.0dip" >
@@ -96,7 +97,7 @@
             android:id="@+id/relativeLayout2"
             android:layout_width="fill_parent"
             android:layout_height="60.0dip"
-            android:background="@android:color/transparent" >
+            android:background="@color/gray" >
 
             <ImageView
                 android:id="@+id/iv_art_bottom"

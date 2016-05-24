@@ -5,8 +5,8 @@ import com.example.music.MainActivity;
 import com.example.music.R;
 import com.example.music.service.PlayService;
 import com.example.music.utils.ImageTools;
-import com.example.music.utils.UIUtils;
 import com.example.music.utils.TrackUtils.Defs;
+import com.example.music.utils.UIUtils;
 import com.example.music.views.CDView;
 
 import android.app.Activity;
@@ -18,11 +18,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.webkit.WebView.FindListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class Player extends Base implements Defs {
 	private LinearLayout mRootLayout;
@@ -41,7 +39,7 @@ public class Player extends Base implements Defs {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(Activity activity) {
-
+		Log.i("Player", "-------------onAttach--------------");
 		mActivity = (MainActivity) activity;
 		mServiceCallback = mActivity.getServiceCallback();
 		Log.i("Player-Ser", mServiceCallback + "");
@@ -49,7 +47,14 @@ public class Player extends Base implements Defs {
 	}
 
 	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		Log.i("Player", "-------------onCreate--------------");
+		super.onCreate(savedInstanceState);
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		Log.i("Player", "-------------onCreateView--------------");
 		mRootLayout = (LinearLayout) inflater.inflate(R.layout.fragment_player, null);
 		mTitle = (TextView) mRootLayout.findViewById(R.id.title);
 		mArtist = (TextView) mRootLayout.findViewById(R.id.artist);
@@ -79,29 +84,73 @@ public class Player extends Base implements Defs {
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		updateTackInfo();
+	public void onActivityCreated(Bundle savedInstanceState) {
+		Log.i("Player", "-------------onActivityCreated--------------");
+		super.onActivityCreated(savedInstanceState);
 	}
 
-	private void updatePlayMode() {
-		switch (mServiceCallback.playMode) {
-		case MODE_ALL:
-			mPlayMode.setImageResource(R.drawable.play_icn_loop);
-			Toast.makeText(mActivity, "列表循环", Toast.LENGTH_SHORT).show();
-			break;
-		case MODE_SINGGLE:
-			mPlayMode.setImageResource(R.drawable.play_icn_loop);
-			Toast.makeText(mActivity, "单曲循环", Toast.LENGTH_SHORT).show();
-			break;
-		case MODE_SHUFFLE:
-			mPlayMode.setImageResource(R.drawable.play_icn_loop);
-			Toast.makeText(mActivity, "随机播放", Toast.LENGTH_SHORT).show();
-			break;
-		default:
-			break;
-		}
+	@Override
+	public void onStart() {
+		Log.i("Player", "-------------onStart--------------");
+		super.onStart();
 	}
+
+	@Override
+	public void onResume() {
+		Log.i("Player", "-------------onResume--------------");
+
+		super.onResume();
+		// updateTackInfo();
+	}
+
+	@Override
+	public void onPause() {
+		Log.i("Player", "-------------onPause--------------");
+		super.onPause();
+	}
+
+	@Override
+	public void onStop() {
+		Log.i("Player", "-------------onStop--------------");
+		super.onStop();
+	}
+
+	@Override
+	public void onDestroyView() {
+		Log.i("Player", "-------------onDestroyView--------------");
+		super.onDestroyView();
+	}
+
+	@Override
+	public void onDestroy() {
+		Log.i("Player", "-------------onResume--------------");
+		super.onDestroy();
+	}
+
+	@Override
+	public void onDetach() {
+		Log.i("Player", "-------------onResume--------------");
+		super.onDetach();
+	}
+
+	// private void updatePlayMode() {
+	// switch (mServiceCallback.playMode) {
+	// case MODE_ALL:
+	// mPlayMode.setImageResource(R.drawable.play_icn_loop);
+	// Toast.makeText(mActivity, "列表循环", Toast.LENGTH_SHORT).show();
+	// break;
+	// case MODE_SINGGLE:
+	// mPlayMode.setImageResource(R.drawable.play_icn_loop);
+	// Toast.makeText(mActivity, "单曲循环", Toast.LENGTH_SHORT).show();
+	// break;
+	// case MODE_SHUFFLE:
+	// mPlayMode.setImageResource(R.drawable.play_icn_loop);
+	// Toast.makeText(mActivity, "随机播放", Toast.LENGTH_SHORT).show();
+	// break;
+	// default:
+	// break;
+	// }
+	// }
 
 	private void updateTackInfo() {
 
