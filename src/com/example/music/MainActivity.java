@@ -66,7 +66,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	private final static int SEEKBARMAXVALUE = 200;
 
 	SharedPreferences sp;
-	private int lastPosition;
+	// private String lastPosition;// 最后一次播放歌曲的位置
 
 	// 绑定服务
 	private ServiceConnection mServiceConnection;
@@ -167,7 +167,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		unbindService(mServiceConnection);
 		// 退出时记录上次播放的歌曲
 		Editor spEditor = sp.edit();
-		spEditor.putInt(LASTPOSITION, mPlayService.getCurrentPosition());
+		spEditor.putString(LASTPOSITION, mPlayService.getCurrentUrl());
 		Log.i("LASTPOSITION", mPlayService.getCurrentPosition() + "");
 		spEditor.commit();
 		super.onDestroy();
@@ -198,10 +198,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 				// 从系统数据库查询全部歌曲，设置播放列表
 				new TrackLoaderTask().execute();
-				lastPosition = sp.getInt(LASTPOSITION, -1);
-				mPlayService.setCurrentPosition((lastPosition == -1 || lastPosition == -2) ? 0 : lastPosition);
-				Log.i("LASTPOSITION+sss", lastPosition + "");
-				lastPosition = -1;
 				// 服务连接后更新页面更新页面
 				initPager();
 				onPlayStateChanged();

@@ -12,7 +12,6 @@ import com.example.music.model.Track;
 import com.example.music.receiver.TrackNextReceiver;
 import com.example.music.receiver.TrackPlayReceiver;
 import com.example.music.utils.QueryTools;
-import com.example.music.utils.TrackUtils;
 import com.example.music.utils.TrackUtils.Defs;
 import com.example.music.views.BitmapToBlur;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -49,7 +48,6 @@ public class PlayService extends Service implements Defs {
 	public static final String ACTION_NEXT_TRACK = "com.example.music.next";
 	public static final String ACTION_PLAY_TRACK = "com.example.music.play";
 	SharedPreferences sp;
-	private static int lastPosition = -1;
 	// 循环模式
 	private static int mode;
 	private PlayServiceBinder mBinder = new PlayServiceBinder();
@@ -147,6 +145,12 @@ public class PlayService extends Service implements Defs {
 		return -1;
 	}
 
+	public String getCurrentUrl() {
+		if (mPlayList != null)
+			return mPlayList.get(mPosition).getUrl();
+		return "";
+	}
+
 	public String getCurrentTitle() {
 		if (mPlayList != null)
 			return mPlayList.get(mPosition).getTitle();
@@ -210,6 +214,26 @@ public class PlayService extends Service implements Defs {
 		mediaPlayer.reset();
 		try {
 			mediaPlayer.setDataSource(mPlayList.get(position).getUrl());
+			mediaPlayer.prepare();
+			mediaPlayer.start();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		onStateChanged();
+		updateNotification();
+	}
+
+	public void playTrack(String url) {
+
+		mediaPlayer.reset();
+		try {
+			mediaPlayer.setDataSource(url);
 			mediaPlayer.prepare();
 			mediaPlayer.start();
 		} catch (IllegalArgumentException e) {

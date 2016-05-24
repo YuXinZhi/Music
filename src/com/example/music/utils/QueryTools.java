@@ -11,7 +11,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class QueryTools implements Defs{
+public class QueryTools implements Defs {
 
 	private String TAG = "QueryTools";
 	private Context mContext;
@@ -79,8 +79,6 @@ public class QueryTools implements Defs{
 		Log.i(TAG, resultList.size() + "::::resultList::::::::::::::::::");
 		return resultList;
 	}
-	
-	
 
 	// 检查歌曲是否在数据库中
 	public boolean checkIfHasAsFavourite(long track_id, String dbName, String tableName, int dbVersion) {
@@ -100,23 +98,52 @@ public class QueryTools implements Defs{
 		}
 		return false;
 	}
+
 	// 检查歌曲是否在数据库中
 	public boolean checkIfInDb(long track_id, String dbName, String tableName, int dbVersion) {
 		try {
-			
+
 			helper = new DataBaseHelper(mContext, dbName, null, dbVersion);
 			database = helper.getWritableDatabase();
 			cursor = database.query(tableName, null, "TRACK_ID=" + track_id, null, null, null, "TITLE DESC");
 			if (cursor.getCount() > 0) {
 				return true;
 			}
-			
+
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			++dbVersion;
 			helper.onUpgrade(database, --dbVersion, dbVersion);
 		}
 		return false;
+	}
+
+	// 检查歌曲是否在数据库中
+	public Track getTrack(long track_id, String dbName, String tableName, int dbVersion) {
+		try {
+			Track track;
+			helper = new DataBaseHelper(mContext, dbName, null, dbVersion);
+			database = helper.getWritableDatabase();
+			cursor = database.query(tableName, null, "TRACK_ID=" + track_id, null, null, null, "TITLE DESC");
+			if (cursor.getCount() > 0) {
+				track = new Track();
+				track.setTitle(cursor.getString(1));
+				track.setArtist(cursor.getString(2));
+				track.setUrl(cursor.getString(3));
+				track.setId(cursor.getLong(4));
+				track.setAlbumId(cursor.getLong(5));
+				track.setDuration(cursor.getLong(6));
+				return track;
+			} else {
+				return null;
+			}
+
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			++dbVersion;
+			helper.onUpgrade(database, --dbVersion, dbVersion);
+		}
+		return null;
 	}
 
 	public void removeTrackFrmDatabase(long track_id, String dbName, String tableName, int dbVersion) {
