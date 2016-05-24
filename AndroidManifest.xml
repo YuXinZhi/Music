@@ -45,6 +45,8 @@
         </receiver>
         <receiver android:name="com.example.music.receiver.TrackPlayReceiver" >
         </receiver>
+        <receiver android:name="com.example.music.receiver.TrackPreviousReceiver" >
+        </receiver>
     </application>
 
 </manifest>

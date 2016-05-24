@@ -15,8 +15,6 @@ import com.example.music.model.Track;
 import com.example.music.service.PlayService;
 import com.example.music.service.PlayService.PlayServiceBinder;
 import com.example.music.service.PlayService.StateChangedListener;
-import com.example.music.utils.DataBaseHelper;
-import com.example.music.utils.QueryTools;
 import com.example.music.utils.TrackUtils;
 import com.example.music.utils.TrackUtils.Defs;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -35,6 +33,7 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -195,9 +194,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 				// 告诉服务监听MainActivity
 				mPlayService.setActivityCallback(MainActivity.this);
-
 				// 从系统数据库查询全部歌曲，设置播放列表
 				new TrackLoaderTask().execute();
+
 				// 服务连接后更新页面更新页面
 				initPager();
 				onPlayStateChanged();
@@ -373,6 +372,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		mPraiseButton = (ImageButton) findViewById(R.id.btn_praised);
 		// 底部控制栏歌曲封面
 		mArtImageView = (ImageView) findViewById(R.id.iv_art_bottom);
+
 		// 歌曲名
 		titleTextView = (TextView) findViewById(R.id.title);
 		artistTextView = (TextView) findViewById(R.id.artist);
@@ -417,13 +417,13 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 		@Override
 		public void onStartTrackingTouch(SeekBar seekBar) {
-
 		}
 
 		@Override
 		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
 		}
+
 	};
 
 	@Override
@@ -434,17 +434,22 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		case R.id.btn_play_local:
 			if (mPlayService.getIsPlaying()) {
 				mPlayService.pausePlayer();
+				// 取消线程
+				// handler.removeCallbacks(updateThread);
 			} else {
 				mPlayService.resumePlayer();
+				// handler.post(updateThread);
 			}
 			break;
 
 		case R.id.btn_next_local:
 			mPlayService.playNextTrack();
+			// handler.post(updateThread);
 			break;
 
 		case R.id.btn_pre_local:
 			mPlayService.playPreviousTrack();
+			// handler.post(updateThread);
 			break;
 
 		default:
@@ -463,6 +468,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	// 当播放状态改变时，回调该函数
 	@Override
 	public void onPlayStateChanged() {
+		if (mPlayService.getIsPlaying()) {
+			handler.post(updateThread);
+		} else {
+			handler.removeCallbacks(updateThread);
+		}
 		// 播放/暂停按钮
 		updateControlButtonBackground();
 		// 专辑封面
@@ -471,6 +481,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		updateArtist(mPlayService.getCurrentArtist());
 		updateTotalTime(mPlayService.getCurrentDuration());
 		updatePrisedImg();
+		mSeekBar.setMax((int) mPlayService.getCurrentDuration());
 		mFragments.get(0).onPraisedPressed();
 
 	}
@@ -527,13 +538,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		mAnimationFade = AnimationUtils.loadAnimation(this, R.anim.fade_in);
 	}
 
-	@Override
-	public void onPublish(int progress) {
-		mCurrentTime.setText("11:11");
-		progress = progress * SEEKBARMAXVALUE;
-		mSeekBar.setProgress(progress);
-	}
-
 	// 异步加载歌曲条目
 	final class TrackLoaderTask extends AsyncTask<Void, Void, List<Track>> {
 
@@ -553,4 +557,17 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	List<Track> getTracks() {
 		return TrackUtils.getTrackList(this);
 	}
+
+	Handler handler = new Handler();
+	Runnable updateThread = new Runnable() {
+		public void run() {
+			// 获得歌曲现在播放位置并设置成播放进度条的值
+			int progress = mPlayService.getCurrentProgress();
+			mSeekBar.setProgress(progress);
+			mCurrentTime.setText(TrackUtils.makeTimeString(MainActivity.this, progress));
+			// 每次延迟1000毫秒再启动线程
+			handler.postDelayed(updateThread, 1000);
+		}
+	};
+
 }

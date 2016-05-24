@@ -12,25 +12,34 @@
         android:layout_centerVertical="true" >
 
         <ImageView
-            android:id="@+id/btn_noti_next"
+            android:id="@+id/btn_noti_pre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="100dp"
+            android:padding="12dp"
+            android:src="@drawable/notification_pre" />
+        <ImageView
+            android:id="@+id/btn_noti_pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_marginRight="60dp"
             android:padding="12dp"
-            android:src="@drawable/notification_next" />
+            android:src="@drawable/notification_play" />
 
         <ImageView
-            android:id="@+id/btn_noti_pause"
+            android:id="@+id/btn_noti_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/btn_noti_next"
-            android:layout_alignBottom="@+id/btn_noti_next"
+            android:layout_alignBaseline="@+id/btn_noti_pause"
+            android:layout_alignBottom="@+id/btn_noti_pause"
             android:layout_alignParentRight="true"
             android:layout_marginRight="20dp"
             android:padding="12dp"
-            android:src="@drawable/notification_play" />
+            android:src="@drawable/notification_next" />
 
         <ImageView
             android:id="@+id/iv_art_noti"
@@ -47,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="12dp"
-            android:layout_toLeftOf="@+id/btn_noti_next"
+            android:layout_toLeftOf="@+id/btn_noti_pre"
             android:layout_toRightOf="@+id/iv_art_noti"
             android:singleLine="true"
             android:textColor="#ffffff"

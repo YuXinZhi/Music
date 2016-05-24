@@ -5,6 +5,7 @@ import com.example.music.MainActivity;
 import com.example.music.R;
 import com.example.music.service.PlayService;
 import com.example.music.utils.ImageTools;
+import com.example.music.utils.UIUtils;
 import com.example.music.utils.TrackUtils.Defs;
 import com.example.music.views.CDView;
 
@@ -15,16 +16,20 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.webkit.WebView.FindListener;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Player extends Base implements Defs {
 	private LinearLayout mRootLayout;
 	private TextView mTitle;
 	private TextView mArtist;
 	private CDView mArt;
-
+	private ImageView mPlayMode;
 	private MainActivity mActivity;
 	private PlayService mServiceCallback;
 
@@ -49,6 +54,26 @@ public class Player extends Base implements Defs {
 		mTitle = (TextView) mRootLayout.findViewById(R.id.title);
 		mArtist = (TextView) mRootLayout.findViewById(R.id.artist);
 		mArt = (CDView) mRootLayout.findViewById(R.id.cd);
+		mPlayMode = (ImageView) mRootLayout.findViewById(R.id.play_mode);
+		mPlayMode.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (mServiceCallback.playMode == MODE_ALL) {
+					mServiceCallback.playMode = MODE_SINGGLE;
+					mPlayMode.setImageResource(R.drawable.play_icn_one);
+					UIUtils.showToast(mActivity, "单曲循环");
+				} else if (mServiceCallback.playMode == MODE_SINGGLE) {
+					mServiceCallback.playMode = MODE_SHUFFLE;
+					mPlayMode.setImageResource(R.drawable.play_icn_shuffle);
+					UIUtils.showToast(mActivity, "随机播放");
+				} else if (mServiceCallback.playMode == MODE_SHUFFLE) {
+					mServiceCallback.playMode = MODE_ALL;
+					mPlayMode.setImageResource(R.drawable.play_icn_loop);
+					UIUtils.showToast(mActivity, "列表循环");
+				}
+			}
+		});
 		updateTackInfo();
 		return mRootLayout;
 	}
@@ -59,7 +84,25 @@ public class Player extends Base implements Defs {
 		updateTackInfo();
 	}
 
-	
+	private void updatePlayMode() {
+		switch (mServiceCallback.playMode) {
+		case MODE_ALL:
+			mPlayMode.setImageResource(R.drawable.play_icn_loop);
+			Toast.makeText(mActivity, "列表循环", Toast.LENGTH_SHORT).show();
+			break;
+		case MODE_SINGGLE:
+			mPlayMode.setImageResource(R.drawable.play_icn_loop);
+			Toast.makeText(mActivity, "单曲循环", Toast.LENGTH_SHORT).show();
+			break;
+		case MODE_SHUFFLE:
+			mPlayMode.setImageResource(R.drawable.play_icn_loop);
+			Toast.makeText(mActivity, "随机播放", Toast.LENGTH_SHORT).show();
+			break;
+		default:
+			break;
+		}
+	}
+
 	private void updateTackInfo() {
 
 		String title = null;

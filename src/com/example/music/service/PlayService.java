@@ -2,7 +2,9 @@ package com.example.music.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -11,6 +13,7 @@ import com.example.music.R;
 import com.example.music.model.Track;
 import com.example.music.receiver.TrackNextReceiver;
 import com.example.music.receiver.TrackPlayReceiver;
+import com.example.music.receiver.TrackPreviousReceiver;
 import com.example.music.utils.QueryTools;
 import com.example.music.utils.TrackUtils.Defs;
 import com.example.music.views.BitmapToBlur;
@@ -36,7 +39,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -49,14 +51,14 @@ public class PlayService extends Service implements Defs {
 	public static final String ACTION_PLAY_TRACK = "com.example.music.play";
 	SharedPreferences sp;
 	// 循环模式
-	private static int mode;
+	public int playMode;
 	private PlayServiceBinder mBinder = new PlayServiceBinder();
 
 	private final MediaPlayer mediaPlayer = new MediaPlayer();
 
 	// 播放列表
 	private List<Track> mPlayList;
-
+	private List<Integer> playListHistory;
 	// 当前歌曲在列表中的位置
 	private int mPosition;
 
@@ -64,13 +66,12 @@ public class PlayService extends Service implements Defs {
 	BroadcastReceiver mHeadSetPlugBroadcastReceiver, mPhoneStateChangeListener, mNotiControlReceiver;
 	// 播放状态变化的监听
 	private StateChangedListener mStateChangedListener;
-
 	// 通知栏的播放器
 	private RemoteViews mRemoteView;
 
 	// 通知栏intent
 	private Intent playIntent, nextIntent, previousIntent;
-	private PendingIntent playPendingIntent, nextPendingIntent;
+	private PendingIntent playPendingIntent, nextPendingIntent, previousPendingIntent;
 	// 通知栏
 	private NotificationManager mNotificationManager;
 	private Notification mNotification;
@@ -80,8 +81,6 @@ public class PlayService extends Service implements Defs {
 
 	private QueryTools mQueryTools;
 
-	private ExecutorService mProgressUpdatedListener = Executors.newSingleThreadExecutor();
-
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -89,12 +88,9 @@ public class PlayService extends Service implements Defs {
 		initPhoneStateChangeListener();
 		setNotiControlReceiver();
 		initNotification();
-
+		playListHistory = new ArrayList<Integer>();
 		mediaPlayer.setOnCompletionListener(mOnCompletionListener);
 		mQueryTools = new QueryTools(this);
-		// 开始更新进度的线程
-
-		// mProgressUpdatedListener.execute(mPublishProgressRunnable);
 	}
 
 	// 和Activity绑定后返回给Activity的对象
@@ -109,13 +105,33 @@ public class PlayService extends Service implements Defs {
 		unregisterReceiver(mHeadSetPlugBroadcastReceiver);
 		unregisterReceiver(mPhoneStateChangeListener);
 		unregisterReceiver(mNotiControlReceiver);
+
 		super.onDestroy();
 	}
 
 	public OnCompletionListener mOnCompletionListener = new OnCompletionListener() {
 		@Override
 		public void onCompletion(MediaPlayer mp) {
-			playNextTrack();
+			switch (playMode) {
+			case MODE_ALL:
+				playNextTrack();
+				break;
+			case MODE_SINGGLE:
+				playTrack(mPosition);
+				break;
+			case MODE_SHUFFLE:
+				int position;
+				int r = new Random(System.currentTimeMillis()).nextInt(1000);
+				do {
+					position = r % mPlayList.size();
+				} while (!playListHistory.contains(position));
+				playTrack(position);
+				if (playListHistory.size() == mPlayList.size())
+					playListHistory.clear();
+				playListHistory.add(position);
+				break;
+			}
+
 		}
 	};
 
@@ -229,8 +245,14 @@ public class PlayService extends Service implements Defs {
 		updateNotification();
 	}
 
-	public void playTrack(String url) {
+	public int getCurrentProgress() {
+		if (mediaPlayer != null) {
+			return mediaPlayer.getCurrentPosition();
+		}
+		return 0;
+	}
 
+	public void playTrack(String url) {
 		mediaPlayer.reset();
 		try {
 			mediaPlayer.setDataSource(url);
@@ -387,8 +409,6 @@ public class PlayService extends Service implements Defs {
 	// Service内部接口，目的是监听播放页面状态的改变
 	public interface StateChangedListener {
 		void onPlayStateChanged();
-
-		void onPublish(int progress);
 	}
 
 	// 初始化通知栏
@@ -401,12 +421,19 @@ public class PlayService extends Service implements Defs {
 				.setContentTitle(getCurrentTitle()).setContentText(getCurrentTitle()).setTicker(getCurrentTitle())
 				.setSmallIcon(R.drawable.ic_launcher).setOngoing(false);
 
+		if (previousIntent == null) {
+			previousIntent = new Intent(this, TrackPreviousReceiver.class);
+		}
 		if (playIntent == null) {
 			playIntent = new Intent(this, TrackPlayReceiver.class);
 		}
 		if (nextIntent == null) {
 			nextIntent = new Intent(this, TrackNextReceiver.class);
 		}
+		if (previousPendingIntent == null) {
+			previousPendingIntent = PendingIntent.getBroadcast(this, 0, previousIntent, 0);
+		}
+
 		if (playPendingIntent == null) {
 			playPendingIntent = PendingIntent.getBroadcast(this, 0, playIntent, 0);
 		}
@@ -415,8 +442,10 @@ public class PlayService extends Service implements Defs {
 		}
 
 		// 监听通知栏按钮
+		mRemoteView.setOnClickPendingIntent(R.id.btn_noti_pre, previousPendingIntent);
 		mRemoteView.setOnClickPendingIntent(R.id.btn_noti_next, nextPendingIntent);
 		mRemoteView.setOnClickPendingIntent(R.id.btn_noti_pause, playPendingIntent);
+
 		// 通知
 		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotification = mBuilder.build();
@@ -462,6 +491,9 @@ public class PlayService extends Service implements Defs {
 				if (action.equals(ACTION_NEXT_TRACK)) {
 					playNextTrack();
 				}
+				if (action.equals(ACTION_PREVIOUS_TRACK)) {
+					playPreviousTrack();
+				}
 				if (action.equals(ACTION_PLAY_TRACK)) {
 					if (getIsPlaying()) {
 						pausePlayer();
@@ -475,6 +507,7 @@ public class PlayService extends Service implements Defs {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_NEXT_TRACK);
 		filter.addAction(ACTION_PLAY_TRACK);
+		filter.addAction(ACTION_PREVIOUS_TRACK);
 		registerReceiver(mNotiControlReceiver, filter);
 	}
 
@@ -508,21 +541,6 @@ public class PlayService extends Service implements Defs {
 		// MainActivity中获取设置背景图片，通知服务来处理背景图片
 		((MainActivity) mActivityCallback).onBlurReady(drawable);
 	}
-
-	/**
-	 * 更新进度的线程
-	 */
-	private Runnable mPublishProgressRunnable = new Runnable() {
-		@Override
-		public void run() {
-			for (;;) {
-				if (mediaPlayer != null && mediaPlayer.isPlaying() && mStateChangedListener != null) {
-					mStateChangedListener.onPublish(mediaPlayer.getCurrentPosition());
-				}
-				SystemClock.sleep(1000);
-			}
-		}
-	};
 
 	// 进度条滑动到指定位置，只有在播放时才有效
 	public void seek(int progress) {
