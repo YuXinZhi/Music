@@ -67,6 +67,7 @@ public class Praised extends Base {
 
 		@Override
 		protected void onPostExecute(List<Track> result) {
+			Log.i("result.size()", result.size() + "");
 			inflateListView(result);
 			super.onPostExecute(result);
 		}

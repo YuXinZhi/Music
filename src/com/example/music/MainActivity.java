@@ -37,7 +37,9 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -333,14 +335,19 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		}
 
 		@Override
-		public void destroyItem(View container, int position, Object object) {
-			// DO NOTHING
+		public void destroyItem(ViewGroup container, int position, Object object) {
 		}
 
 		@Override
 		public CharSequence getPageTitle(int position) {
 			return "MUSIC";
 		}
+
+//		@Override
+//		public int getItemPosition(Object object) {
+//			return POSITION_NONE;
+//		}
+
 	}
 
 	private void findControlButtons() {
@@ -379,6 +386,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 				// 更新收藏页面的收藏按钮
 				mFragments.get(2).onPraisedPressed();
 
+				Log.i("mPraiseButton clicked", mFragments.get(2) + "");
 			}
 		});
 	}

@@ -53,11 +53,19 @@ public class Player extends Base {
 		return mRootLayout;
 	}
 
+	@Override
+	public void onResume() {
+		super.onResume();
+		updateTackInfo();
+	}
+	
 	private void updateTackInfo() {
-
-		String title = mServiceCallback.getCurrentTitle();
-		// Log.i("title", title);
-		String artist = mServiceCallback.getCurrentArtist();
+		String title = null;
+		String artist = null;
+		if (mServiceCallback != null) {
+			title = mServiceCallback.getCurrentTitle();
+			artist = mServiceCallback.getCurrentArtist();
+		}
 		if (title == null || title == "") {
 			title = "unknown title";
 		}

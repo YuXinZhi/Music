@@ -63,7 +63,7 @@ public class QueryTools {
 				resultList.add(track);
 				// 默认的限制是10条数据
 				if (limitCount) {
-					if (resultList.size() > 10) {
+					if (resultList.size() > 12) {
 						return resultList;
 					}
 				}
