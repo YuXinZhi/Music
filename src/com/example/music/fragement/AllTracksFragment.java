@@ -7,7 +7,8 @@ import com.example.music.R;
 import com.example.music.adapter.TrackListAdapter;
 import com.example.music.model.Track;
 import com.example.music.service.PlayService;
-import com.example.music.utils.TrackUtils;
+import com.example.music.utils.QueryTools;
+import com.example.music.utils.TrackUtils.Defs;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.app.Activity;
@@ -21,7 +22,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-public class AllTracksFragment extends Base {
+public class AllTracksFragment extends Base implements Defs {
 	private ListView mListView;
 	private TrackListAdapter mAdapter;
 
@@ -91,8 +92,13 @@ public class AllTracksFragment extends Base {
 		});
 	}
 
+	// List<Track> getTracks() {
+	// return TrackUtils.getTrackList(getActivity());
+	// }
+
 	List<Track> getTracks() {
-		return TrackUtils.getTrackList(getActivity());
+		return new QueryTools(getActivity()).getListFrmDataBase(DB_TRACK_NAME, TB_ALLTRACKS_NAME, 1, "TITLE DESC",
+				false);
 	}
 
 }

@@ -3,6 +3,7 @@ package com.example.music.utils;
 import java.util.ArrayList;
 
 import com.example.music.model.Track;
+import com.example.music.utils.TrackUtils.Defs;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,7 +11,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class QueryTools {
+public class QueryTools implements Defs{
 
 	private String TAG = "QueryTools";
 	private Context mContext;
@@ -78,6 +79,8 @@ public class QueryTools {
 		Log.i(TAG, resultList.size() + "::::resultList::::::::::::::::::");
 		return resultList;
 	}
+	
+	
 
 	// 检查歌曲是否在数据库中
 	public boolean checkIfHasAsFavourite(long track_id, String dbName, String tableName, int dbVersion) {
@@ -90,6 +93,24 @@ public class QueryTools {
 				return true;
 			}
 
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			++dbVersion;
+			helper.onUpgrade(database, --dbVersion, dbVersion);
+		}
+		return false;
+	}
+	// 检查歌曲是否在数据库中
+	public boolean checkIfInDb(long track_id, String dbName, String tableName, int dbVersion) {
+		try {
+			
+			helper = new DataBaseHelper(mContext, dbName, null, dbVersion);
+			database = helper.getWritableDatabase();
+			cursor = database.query(tableName, null, "TRACK_ID=" + track_id, null, null, null, "TITLE DESC");
+			if (cursor.getCount() > 0) {
+				return true;
+			}
+			
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			++dbVersion;

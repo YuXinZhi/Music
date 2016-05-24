@@ -23,16 +23,20 @@ public class DataBaseHelper extends SQLiteOpenHelper implements TrackUtils.Defs 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// 整个数据库升级
+		db.execSQL("DROP TABLE IF EXISTS " + TB_ALLTRACKS_NAME);
 		db.execSQL("DROP TABLE IF EXISTS " + TB_PRAISED_NAME);
-		db.execSQL("DROP TABLE IF EXISTS " + TB_ALLTRCKS_NAME);
 		onCreate(db);
+	}
+
+	public void removeTracksTable(SQLiteDatabase db) {
+		db.execSQL("DROP TABLE IF EXISTS " + TB_ALLTRACKS_NAME);
 	}
 
 	private void init() {
 		// 初始化SQL语句
 		CREATE_PRAISED_TABLE = "CREATE TABLE" + " " + TB_PRAISED_NAME + "(_id INTEGER PRIMARY KEY AUTOINCREMENT ,"
 				+ "TITLE TEXT,ARTIST TEXT,PATH TEXT,TRACK_ID LONG,ALBUM_ID LONG,DURATION LONG)";
-		CREATE_ALLTRACKS_TABLE = "CREATE TABLE" + " " + TB_ALLTRCKS_NAME + "(_id INTEGER PRIMARY KEY AUTOINCREMENT ,"
+		CREATE_ALLTRACKS_TABLE = "CREATE TABLE" + " " + TB_ALLTRACKS_NAME + "(_id INTEGER PRIMARY KEY AUTOINCREMENT ,"
 				+ "TITLE TEXT,ARTIST TEXT,PATH TEXT,TRACK_ID LONG,ALBUM_ID LONG,DURATION LONG)";
 	}
 

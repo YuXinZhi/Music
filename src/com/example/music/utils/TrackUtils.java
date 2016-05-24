@@ -9,8 +9,10 @@ import com.example.music.R;
 import com.example.music.model.Track;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
@@ -24,7 +26,7 @@ public class TrackUtils {
 		public static final String DB_TRACK_NAME = "DB_TRACK_NAME";
 		public static final String TB_PRAISED_NAME = "TABLE_PRAISED";
 
-		public static final String TB_ALLTRCKS_NAME = "TABLE_ALLTRCKS_NAME";
+		public static final String TB_ALLTRACKS_NAME = "TABLE_ALLTRACKS_NAME";
 
 		public static final String MYSP = "com.example.music.sharedpreferences";
 		public static final String LASTPOSITION = "LASTPOSITION";
@@ -88,6 +90,65 @@ public class TrackUtils {
 			return list;
 		}
 		return list;
+	}
+
+	public static void searchAndAddTracksToDb(Context c) {
+		ContentResolver cr = c.getContentResolver();
+		QueryTools mQueryTools = new QueryTools(c);
+		// "content://" + "media" + "/";
+		// volumeName + "/file"
+		Cursor cursor = cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
+				MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
+
+		if (cursor != null && cursor.getCount() > 0) {
+			for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+				long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
+				String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaColumns.TITLE));
+
+				String singer = cursor.getString(cursor.getColumnIndexOrThrow(AudioColumns.ARTIST));
+
+				int time = cursor.getInt(cursor.getColumnIndexOrThrow(AudioColumns.DURATION));
+				// time = time / 60000;
+
+				String duration = TrackUtils.makeTimeString(c, time);
+				String name = cursor.getString(cursor.getColumnIndexOrThrow(MediaColumns.DISPLAY_NAME));
+				//
+				// String suffix = name
+				// .substring(name.length() - 4, name.length());
+
+				String url = cursor.getString(cursor.getColumnIndexOrThrow(MediaColumns.DATA));
+				String album = cursor.getString(cursor.getColumnIndexOrThrow(AudioColumns.ALBUM));
+				long albumid = cursor.getLong(cursor.getColumnIndex(AudioColumns.ALBUM_ID));
+
+				if (url.endsWith(".mp3") || url.endsWith(".MP3")) {
+					Track track = new Track();
+					track.setTitle(title);
+					track.setArtist(singer);
+					track.setId(id);
+					track.setUrl(url);
+					track.setAlbumId(albumid);
+					track.setDuration(time);
+
+					ContentValues values = new ContentValues();
+					values.put("TITLE", title);
+					values.put("ARTIST", singer);
+					values.put("PATH", url);
+					values.put("TRACK_ID", id);
+					values.put("ALBUM_ID", albumid);
+					values.put("DURATION", time);
+					// 歌曲不在数据库中时，删除
+					if (!mQueryTools.checkIfInDb(id, Defs.DB_TRACK_NAME, Defs.TB_ALLTRACKS_NAME, 1)) {
+						mQueryTools.addToDb(values, Defs.DB_TRACK_NAME, Defs.TB_ALLTRACKS_NAME, 1);
+					}
+				}
+			}
+		}
+		// 关闭Cursor
+		try {
+			cursor.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static StringBuilder sFormatBuilder = new StringBuilder();

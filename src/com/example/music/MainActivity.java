@@ -11,10 +11,12 @@ import com.example.music.fragement.MenuDrawer;
 import com.example.music.fragement.Online;
 import com.example.music.fragement.Player;
 import com.example.music.fragement.Praised;
+import com.example.music.model.Track;
 import com.example.music.service.PlayService;
 import com.example.music.service.PlayService.PlayServiceBinder;
 import com.example.music.service.PlayService.StateChangedListener;
 import com.example.music.utils.DataBaseHelper;
+import com.example.music.utils.QueryTools;
 import com.example.music.utils.TrackUtils;
 import com.example.music.utils.TrackUtils.Defs;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -31,6 +33,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -105,7 +108,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		if (mRootLayout == null) {
 			mRootLayout = (RelativeLayout) findViewById(R.id.root_layout);
 		}
-
+		sp = getSharedPreferences(MYSP, MODE_PRIVATE);
+		// 更新歌曲列表
+		TrackUtils.searchAndAddTracksToDb(this);
 		// 自定义Actionbar
 		styleActionBar();
 
@@ -127,11 +132,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		// 初始化菜单界面
 		initDrawer();
 
-		initDateBase(this);
-	}
-
-	private void initDateBase(Context context) {
-		// new DataBaseHelper(this, name, factory, version)
 	}
 
 	private void initDrawer() {
@@ -168,6 +168,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		// 退出时记录上次播放的歌曲
 		Editor spEditor = sp.edit();
 		spEditor.putInt(LASTPOSITION, mPlayService.getCurrentPosition());
+		Log.i("LASTPOSITION", mPlayService.getCurrentPosition() + "");
 		spEditor.commit();
 		super.onDestroy();
 	}
@@ -195,6 +196,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 				// 告诉服务监听MainActivity
 				mPlayService.setActivityCallback(MainActivity.this);
 
+				// 从系统数据库查询全部歌曲，设置播放列表
+				new TrackLoaderTask().execute();
+				lastPosition = sp.getInt(LASTPOSITION, -1);
+				mPlayService.setCurrentPosition((lastPosition == -1 || lastPosition == -2) ? 0 : lastPosition);
+				Log.i("LASTPOSITION+sss", lastPosition + "");
+				lastPosition = -1;
 				// 服务连接后更新页面更新页面
 				initPager();
 				onPlayStateChanged();
@@ -529,5 +536,25 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		mCurrentTime.setText("11:11");
 		progress = progress * SEEKBARMAXVALUE;
 		mSeekBar.setProgress(progress);
+	}
+
+	// 异步加载歌曲条目
+	final class TrackLoaderTask extends AsyncTask<Void, Void, List<Track>> {
+
+		@Override
+		protected List<Track> doInBackground(Void... arg0) {
+			return getTracks();
+		}
+
+		@Override
+		protected void onPostExecute(List<Track> result) {
+			mPlayService.setupPLayList(result);
+			super.onPostExecute(result);
+		}
+
+	}
+
+	List<Track> getTracks() {
+		return TrackUtils.getTrackList(this);
 	}
 }
