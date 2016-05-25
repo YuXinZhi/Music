@@ -52,6 +52,15 @@ public class PlayService extends Service implements Defs {
 	SharedPreferences sp;
 	// 循环模式
 	public int playMode;
+
+	public int getPlayMode() {
+		return playMode;
+	}
+
+	public void setPlayMode(int playMode) {
+		this.playMode = playMode;
+	}
+
 	private PlayServiceBinder mBinder = new PlayServiceBinder();
 
 	private final MediaPlayer mediaPlayer = new MediaPlayer();
@@ -91,6 +100,9 @@ public class PlayService extends Service implements Defs {
 		playListHistory = new ArrayList<Integer>();
 		mediaPlayer.setOnCompletionListener(mOnCompletionListener);
 		mQueryTools = new QueryTools(this);
+		// 读取用户设置的播放模式默认是列表循环
+		sp = getSharedPreferences(MYSP, MODE_PRIVATE);
+		playMode = sp.getInt("PLAYMODE", MODE_ALL);
 	}
 
 	// 和Activity绑定后返回给Activity的对象
@@ -115,20 +127,24 @@ public class PlayService extends Service implements Defs {
 			switch (playMode) {
 			case MODE_ALL:
 				playNextTrack();
+				playListHistory.clear();
 				break;
 			case MODE_SINGGLE:
 				playTrack(mPosition);
+				playListHistory.clear();
 				break;
 			case MODE_SHUFFLE:
 				int position;
-				int r = new Random(System.currentTimeMillis()).nextInt(1000);
+				playListHistory.add(mPosition);
 				do {
-					position = r % mPlayList.size();
-				} while (!playListHistory.contains(position));
+					int r = new Random(System.currentTimeMillis()).nextInt(1000);
+					position = r % mPlayList.size()-1;
+					System.out.println("position="+position+";"+"mposition="+mPosition+"playListHistory.size"+playListHistory.size());
+				} while (playListHistory.contains(position));
 				playTrack(position);
 				if (playListHistory.size() == mPlayList.size())
 					playListHistory.clear();
-				playListHistory.add(position);
+				
 				break;
 			}
 

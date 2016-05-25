@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -88,6 +89,13 @@ public class AllTracksFragment extends Base implements Defs {
 					mServiceCallback.setupPLayList(tracks);
 				mServiceCallback.setCurrentPosition(position);
 				mServiceCallback.playTrack(position);
+			}
+		});
+		mListView.setOnLongClickListener(new OnLongClickListener() {
+			
+			@Override
+			public boolean onLongClick(View v) {
+				return false;
 			}
 		});
 	}

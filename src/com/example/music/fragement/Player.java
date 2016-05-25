@@ -10,6 +10,8 @@ import com.example.music.utils.UIUtils;
 import com.example.music.views.CDView;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -30,6 +32,7 @@ public class Player extends Base implements Defs {
 	private ImageView mPlayMode;
 	private MainActivity mActivity;
 	private PlayService mServiceCallback;
+	SharedPreferences sp;
 
 	@Override
 	public void onPraisedPressed() {
@@ -60,6 +63,8 @@ public class Player extends Base implements Defs {
 		mArtist = (TextView) mRootLayout.findViewById(R.id.artist);
 		mArt = (CDView) mRootLayout.findViewById(R.id.cd);
 		mPlayMode = (ImageView) mRootLayout.findViewById(R.id.play_mode);
+		// 更新循环模式图标
+		updatePlayMode();
 		mPlayMode.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -81,6 +86,18 @@ public class Player extends Base implements Defs {
 		});
 		updateTackInfo();
 		return mRootLayout;
+	}
+
+	private void updatePlayMode() {
+		sp = getActivity().getSharedPreferences(MYSP, Context.MODE_PRIVATE);
+		int mode = sp.getInt(PLAYMODE, MODE_ALL);
+		if (mode == MODE_ALL) {
+			mPlayMode.setImageResource(R.drawable.play_icn_loop);
+		} else if (mode == MODE_SINGGLE) {
+			mPlayMode.setImageResource(R.drawable.play_icn_one);
+		} else if (mode == MODE_SHUFFLE) {
+			mPlayMode.setImageResource(R.drawable.play_icn_shuffle);
+		}
 	}
 
 	@Override
@@ -166,21 +183,25 @@ public class Player extends Base implements Defs {
 		if (artist == "" || artist == null) {
 			artist = "unknown artist";
 		}
-		Log.i("title", title);
-		mTitle.setText(title);
-		mArtist.setText(artist);
 
-		// 获取专辑封面更新
-		Bitmap trackArt = mServiceCallback.getCurrentTrackArt();
-		if (trackArt == null) {
-			trackArt = BitmapFactory.decodeResource(getResources(), R.drawable.default_artist);
-		}
-		mArt.setImage(ImageTools.scaleBitmap(trackArt, (int) (App.sScreenWidth * 0.7)));
+		if (mTitle != null)
+			mTitle.setText(title);
+		if (mArtist != null)
+			mArtist.setText(artist);
 
-		if (mServiceCallback.getIsPlaying()) {
-			mArt.start();
-		} else {
-			mArt.pause();
+		if (mArt != null) {
+			// 获取专辑封面更新
+			Bitmap trackArt = mServiceCallback.getCurrentTrackArt();
+			if (trackArt == null) {
+				trackArt = BitmapFactory.decodeResource(getResources(), R.drawable.default_artist);
+			}
+			mArt.setImage(ImageTools.scaleBitmap(trackArt, (int) (App.sScreenWidth * 0.7)));
+
+			if (mServiceCallback.getIsPlaying()) {
+				mArt.start();
+			} else {
+				mArt.pause();
+			}
 		}
 
 	}

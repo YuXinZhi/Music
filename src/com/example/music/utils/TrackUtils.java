@@ -28,6 +28,8 @@ public class TrackUtils {
 
 		public static final String MYSP = "com.example.music.sharedpreferences";
 		public static final String LASTPOSITION = "LASTPOSITION";
+		public static final String PLAYMODE = "PLAYMODE";
+
 		public static final int MODE_ALL = 0;
 		public static final int MODE_SINGGLE = 1;
 		public static final int MODE_SHUFFLE = 2;
