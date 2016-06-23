@@ -121,33 +121,31 @@ public class PlayService extends Service implements Defs {
 		super.onDestroy();
 	}
 
+	//歌曲播放接收监听器
 	public OnCompletionListener mOnCompletionListener = new OnCompletionListener() {
 		@Override
 		public void onCompletion(MediaPlayer mp) {
 			switch (playMode) {
 			case MODE_ALL:
-				playNextTrack();
+				playNextTrack();//列表循环模式，正常播放下一曲
 				playListHistory.clear();
 				break;
 			case MODE_SINGGLE:
-				playTrack(mPosition);
+				playTrack(mPosition);//单曲循环模式，播放当前歌曲
 				playListHistory.clear();
 				break;
-			case MODE_SHUFFLE:
+			case MODE_SHUFFLE://随机模式，根据产生的随机数和历史记录播放下一曲
 				int position;
 				playListHistory.add(mPosition);
 				do {
 					int r = new Random(System.currentTimeMillis()).nextInt(1000);
 					position = r % mPlayList.size()-1;
-					System.out.println("position="+position+";"+"mposition="+mPosition+"playListHistory.size"+playListHistory.size());
 				} while (playListHistory.contains(position));
 				playTrack(position);
 				if (playListHistory.size() == mPlayList.size())
 					playListHistory.clear();
-				
 				break;
 			}
-
 		}
 	};
 
@@ -334,27 +332,17 @@ public class PlayService extends Service implements Defs {
 
 	// 收藏
 	public boolean onPraisedBtnPressed() {
-
+		//判断当前歌曲的收藏状态
 		boolean hadPraised = mQueryTools.checkIfHasAsFavourite(getCurrentTrackId(), DB_TRACK_NAME, TB_PRAISED_NAME, 1);
-
 		if (!hadPraised) {
+			//如果当前歌曲没有被收藏，则将歌曲信息添加到数据库
 			addCurrentToDataBase();
 			return true;
 		} else {
+			//如果当前歌曲被收藏，则将信息添加到数据库
 			mQueryTools.removeTrackFrmDatabase(getCurrentTrackId(), DB_TRACK_NAME, TB_PRAISED_NAME, 1);
 			return false;
 		}
-
-	}
-
-	public boolean checkIfPraised() {
-		return mQueryTools.checkIfHasAsFavourite(getCurrentTrackId(), DB_TRACK_NAME, TB_PRAISED_NAME, 1);
-	}
-
-	// 播放 状态改变时调用
-	private void onStateChanged() {
-		mStateChangedListener.onPlayStateChanged();
-		new BlurImageCreater().execute();
 	}
 
 	// 把歌曲信息添加到收藏列表的数据库中
@@ -368,6 +356,17 @@ public class PlayService extends Service implements Defs {
 		values.put("DURATION", getCurrentDuration());
 		mQueryTools.addToDb(values, DB_TRACK_NAME, TB_PRAISED_NAME, 1);
 	}
+	
+	public boolean checkIfPraised() {
+		return mQueryTools.checkIfHasAsFavourite(getCurrentTrackId(), DB_TRACK_NAME, TB_PRAISED_NAME, 1);
+	}
+
+	// 播放 状态改变时调用
+	private void onStateChanged() {
+		mStateChangedListener.onPlayStateChanged();
+		new BlurImageCreater().execute();
+	}
+
 
 	// 监听耳机插入状态
 	private void initHeadPluggedListener() {

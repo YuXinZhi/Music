@@ -35,42 +35,31 @@ public class TrackUtils {
 		public static final int MODE_SHUFFLE = 2;
 	}
 
-	// 查询外部存储
 	/**
+	 * 查询外部存储
 	 * 访问sdcard中的音频文件的URI为MediaStore.Audio.Media.EXTERNAL_CONTENT_URI，
 	 * 为了使播放列表显示所以音乐文件的信息，这里需要查询sdcard里的音频文件，并把查询到的信息保存在Cursor中
 	 */
 	public static List<Track> getTrackList(Context c) {
-
 		List<Track> list = new ArrayList<Track>();
+		//通过当前上下文获得ContentResolver
 		ContentResolver cr = c.getContentResolver();
-
-		// "content://" + "media" + "/";
-		// volumeName + "/file"
+		//查询外部存储音频文件信息
 		Cursor cursor = cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
 				MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
-
+		//遍历查询结果的cursor
 		if (cursor != null && cursor.getCount() > 0) {
 			for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 				long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
 				String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaColumns.TITLE));
-
 				String singer = cursor.getString(cursor.getColumnIndexOrThrow(AudioColumns.ARTIST));
-
 				int time = cursor.getInt(cursor.getColumnIndexOrThrow(AudioColumns.DURATION));
-				// time = time / 60000;
-
 				String duration = TrackUtils.makeTimeString(c, time);
 				String name = cursor.getString(cursor.getColumnIndexOrThrow(MediaColumns.DISPLAY_NAME));
-				//
-				// String suffix = name
-				// .substring(name.length() - 4, name.length());
-
 				String url = cursor.getString(cursor.getColumnIndexOrThrow(MediaColumns.DATA));
 				String album = cursor.getString(cursor.getColumnIndexOrThrow(AudioColumns.ALBUM));
 				long albumid = cursor.getLong(cursor.getColumnIndex(AudioColumns.ALBUM_ID));
-
-				if (url.endsWith(".mp3") || url.endsWith(".MP3")) {
+				if (url.endsWith(".mp3") || url.endsWith(".MP3")) {//过滤MP3格式文件
 					Track track = new Track();
 					track.setTitle(title);
 					track.setArtist(singer);
@@ -78,7 +67,7 @@ public class TrackUtils {
 					track.setUrl(url);
 					track.setAlbumId(albumid);
 					track.setDuration(time);
-					list.add(track);
+					list.add(track);//保存到歌曲列表
 				}
 			}
 		}

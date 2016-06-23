@@ -268,6 +268,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 			@Override
 			public void onClick(View v) {
+				((AllTracksFragment)mFragments.get(1)).dismissPopupWindow();
 				mViewPager.setCurrentItem(1, true);
 			}
 		});
@@ -329,6 +330,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		// 设置没有被选中的图标背景
 		for (int i = 0; i < mNaViews.size(); i++) {
 			if (position != i)
+				
 				mNaViews.get(i).setBackground(getResources().getDrawable(R.drawable.pressed_to));
 		}
 		// 设置选中的图标背景
@@ -408,7 +410,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 	private OnSeekBarChangeListener mSeekBarChangeListener = new OnSeekBarChangeListener() {
 
-		// 拖拽停止时
+		// 拖拽停止时调用
 		@Override
 		public void onStopTrackingTouch(SeekBar seekBar) {
 			int progress = seekBar.getProgress();
@@ -430,26 +432,21 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	public void onClick(View v) {
 		int btnId = v.getId();
 		switch (btnId) {
-
+		// 根据按钮的id,选择通过Service改变播放状态
 		case R.id.btn_play_local:
 			if (mPlayService.getIsPlaying()) {
 				mPlayService.pausePlayer();
-				// 取消线程
-				// handler.removeCallbacks(updateThread);
 			} else {
 				mPlayService.resumePlayer();
-				// handler.post(updateThread);
 			}
 			break;
 
 		case R.id.btn_next_local:
 			mPlayService.playNextTrack();
-			// handler.post(updateThread);
 			break;
 
 		case R.id.btn_pre_local:
 			mPlayService.playPreviousTrack();
-			// handler.post(updateThread);
 			break;
 
 		default:
@@ -469,8 +466,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 	@Override
 	public void onPlayStateChanged() {
 		if (mPlayService.getIsPlaying()) {
+			// 启进度的监听
 			handler.post(updateThread);
 		} else {
+			// 停止播放时，移除监听线程
 			handler.removeCallbacks(updateThread);
 		}
 		// 播放/暂停按钮
