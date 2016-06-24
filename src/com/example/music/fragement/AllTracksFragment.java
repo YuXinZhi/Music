@@ -1,5 +1,6 @@
 package com.example.music.fragement;
 
+import java.io.File;
 import java.util.List;
 
 import com.example.music.MainActivity;
@@ -12,10 +13,12 @@ import com.example.music.utils.TrackUtils.Defs;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Gravity;
@@ -53,6 +56,8 @@ public class AllTracksFragment extends Base implements Defs {
 
 	private Track clickedTrack;
 	private ImageView deleteImageView;
+
+	private QueryTools mQueryTools;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -139,9 +144,25 @@ public class AllTracksFragment extends Base implements Defs {
 				deleteImageView.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						
-						
-						Toast.makeText(getContext(), "删除", 0).show();
+						System.out.println(clickedTrack.toString());
+						File trackFile = new File(clickedTrack.getUrl());
+						if (trackFile.exists()) {
+							boolean b = trackFile.delete();
+							System.out.println(b);
+							Log.v("d", b + "" + clickedTrack.getUrl());
+							mQueryTools = new QueryTools(getActivity());
+							mQueryTools.removeTrackFrmDatabase(clickedTrack.getId(), DB_TRACK_NAME, TB_ALLTRACKS_NAME,
+									1);
+							ContentResolver resolver = mActivity.getContentResolver();
+							int resnumber = resolver.delete(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+									MediaStore.Audio.Media._ID + "=? ", new String[] { clickedTrack.getId() + "" });
+							System.out.println("resnumber=" + resnumber);
+							Toast.makeText(getContext(),
+									"删除歌曲" + clickedTrack.getTitle() + clickedTrack.getId() + "成功！", Toast.LENGTH_LONG)
+									.show();
+						}
+						display();
+						mAdapter.notifyDataSetChanged();
 						dismissPopupWindow();
 					}
 				});

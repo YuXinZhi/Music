@@ -243,7 +243,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 			public void onClick(View v) {
 				// 弹出菜单
 				// toogleDrawer();
-				Intent intent = new Intent(MainActivity.this, PlayActivity.class);
+				Intent intent = new Intent(MainActivity.this, Settings.class);
 				startActivity(intent);
 			}
 		});

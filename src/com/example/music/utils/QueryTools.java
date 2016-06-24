@@ -150,7 +150,8 @@ public class QueryTools implements Defs {
 		try {
 			helper = new DataBaseHelper(mContext, dbName, null, dbVersion);
 			database = helper.getWritableDatabase();
-			database.delete(tableName, "TRACK_ID=?", new String[] { track_id + "" });
+			int d = database.delete(tableName, "TRACK_ID=?", new String[] { track_id + "" });
+			Log.v("db_delete number", d + "");
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 			++dbVersion;

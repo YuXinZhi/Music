@@ -16,6 +16,7 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AudioColumns;
 import android.provider.MediaStore.MediaColumns;
+import android.widget.Toast;
 
 public class TrackUtils {
 
@@ -36,21 +37,20 @@ public class TrackUtils {
 	}
 
 	/**
-	 * 查询外部存储
-	 * 访问sdcard中的音频文件的URI为MediaStore.Audio.Media.EXTERNAL_CONTENT_URI，
+	 * 查询外部存储 访问sdcard中的音频文件的URI为MediaStore.Audio.Media.EXTERNAL_CONTENT_URI，
 	 * 为了使播放列表显示所以音乐文件的信息，这里需要查询sdcard里的音频文件，并把查询到的信息保存在Cursor中
 	 */
 	public static List<Track> getTrackList(Context c) {
 		List<Track> list = new ArrayList<Track>();
-		//通过当前上下文获得ContentResolver
+		// 通过当前上下文获得ContentResolver
 		ContentResolver cr = c.getContentResolver();
-		//查询外部存储音频文件信息
+		// 查询外部存储音频文件信息
 		Cursor cursor = cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
 				MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
-		//遍历查询结果的cursor
+		// 遍历查询结果的cursor
 		if (cursor != null && cursor.getCount() > 0) {
 			for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-				long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
+				long id = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
 				String title = cursor.getString(cursor.getColumnIndexOrThrow(MediaColumns.TITLE));
 				String singer = cursor.getString(cursor.getColumnIndexOrThrow(AudioColumns.ARTIST));
 				int time = cursor.getInt(cursor.getColumnIndexOrThrow(AudioColumns.DURATION));
@@ -59,7 +59,7 @@ public class TrackUtils {
 				String url = cursor.getString(cursor.getColumnIndexOrThrow(MediaColumns.DATA));
 				String album = cursor.getString(cursor.getColumnIndexOrThrow(AudioColumns.ALBUM));
 				long albumid = cursor.getLong(cursor.getColumnIndex(AudioColumns.ALBUM_ID));
-				if (url.endsWith(".mp3") || url.endsWith(".MP3")) {//过滤MP3格式文件
+				if (url.endsWith(".mp3") || url.endsWith(".MP3")) {// 过滤MP3格式文件
 					Track track = new Track();
 					track.setTitle(title);
 					track.setArtist(singer);
@@ -67,7 +67,7 @@ public class TrackUtils {
 					track.setUrl(url);
 					track.setAlbumId(albumid);
 					track.setDuration(time);
-					list.add(track);//保存到歌曲列表
+					list.add(track);// 保存到歌曲列表
 				}
 			}
 		}
@@ -88,7 +88,7 @@ public class TrackUtils {
 		// volumeName + "/file"
 		Cursor cursor = cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
 				MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
-
+		int newTrackNumber = 0;
 		if (cursor != null && cursor.getCount() > 0) {
 			for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
 				long id = cursor.getLong(cursor.getColumnIndex(BaseColumns._ID));
@@ -125,9 +125,10 @@ public class TrackUtils {
 					values.put("TRACK_ID", id);
 					values.put("ALBUM_ID", albumid);
 					values.put("DURATION", time);
-					// 歌曲不在数据库中时，删除
+					// 歌曲不在数据库中时，添加歌曲
 					if (!mQueryTools.checkIfInDb(id, Defs.DB_TRACK_NAME, Defs.TB_ALLTRACKS_NAME, 1)) {
 						mQueryTools.addToDb(values, Defs.DB_TRACK_NAME, Defs.TB_ALLTRACKS_NAME, 1);
+						newTrackNumber++;
 					}
 				}
 			}
@@ -138,6 +139,8 @@ public class TrackUtils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		Toast.makeText(c, "新增" + newTrackNumber + "首歌曲。", Toast.LENGTH_LONG).show();
+
 	}
 
 	private static StringBuilder sFormatBuilder = new StringBuilder();

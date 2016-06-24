@@ -339,7 +339,7 @@ public class PlayService extends Service implements Defs {
 			addCurrentToDataBase();
 			return true;
 		} else {
-			//如果当前歌曲被收藏，则将信息添加到数据库
+			//如果当前歌曲被收藏，则将信息从数据库中删除数据库
 			mQueryTools.removeTrackFrmDatabase(getCurrentTrackId(), DB_TRACK_NAME, TB_PRAISED_NAME, 1);
 			return false;
 		}
