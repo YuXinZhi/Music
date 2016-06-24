@@ -157,9 +157,8 @@ public class AllTracksFragment extends Base implements Defs {
 							int resnumber = resolver.delete(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
 									MediaStore.Audio.Media._ID + "=? ", new String[] { clickedTrack.getId() + "" });
 							System.out.println("resnumber=" + resnumber);
-							Toast.makeText(getContext(),
-									"删除歌曲" + clickedTrack.getTitle() + clickedTrack.getId() + "成功！", Toast.LENGTH_LONG)
-									.show();
+							Toast.makeText(getContext(), "删除歌曲\"" + clickedTrack.getTitle() + "\"成功！",
+									Toast.LENGTH_LONG).show();
 						}
 						display();
 						mAdapter.notifyDataSetChanged();

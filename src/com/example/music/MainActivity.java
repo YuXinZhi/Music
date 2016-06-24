@@ -129,7 +129,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		initAnim();
 
 		// 初始化菜单界面
-		initDrawer();
+		// initDrawer();
 
 	}
 
@@ -268,7 +268,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 
 			@Override
 			public void onClick(View v) {
-				((AllTracksFragment)mFragments.get(1)).dismissPopupWindow();
+				((AllTracksFragment) mFragments.get(1)).dismissPopupWindow();
 				mViewPager.setCurrentItem(1, true);
 			}
 		});
@@ -330,7 +330,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener, S
 		// 设置没有被选中的图标背景
 		for (int i = 0; i < mNaViews.size(); i++) {
 			if (position != i)
-				
+
 				mNaViews.get(i).setBackground(getResources().getDrawable(R.drawable.pressed_to));
 		}
 		// 设置选中的图标背景
